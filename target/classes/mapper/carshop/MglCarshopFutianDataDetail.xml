@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mgl.dao.carshop.MglCarshopFutianDataDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.mgl.bean.carshop.MglCarshopFutianDataDetail">
+        <id column="id" property="id" />
+        <result column="vin" property="vin" />
+        <result column="car_current_time" property="currentTime" />
+        <result column="mileages" property="mileages" />
+        <result column="speed" property="speed" />
+        <result column="run_model" property="runModel" />
+        <result column="charge_state" property="chargeState" />
+        <result column="soc" property="soc" />
+        <result column="total_current" property="totalCurrent" />
+        <result column="total_voltage" property="totalVoltage" />
+        <result column="max_temperature" property="maxTemperature" />
+        <result column="min_temperature" property="minTemperature" />
+        <result column="max_voltage" property="maxVoltage" />
+        <result column="min_voltage" property="minVoltage" />
+        <result column="min_voltage_cell_code" property="minVoltageCellCode" />
+        <result column="max_voltage_cell_code" property="maxVoltageCellCode" />
+        <result column="min_voltage_box_code" property="minVoltageBoxCode" />
+        <result column="max_voltage_box_code" property="maxVoltageBoxCode" />
+        <result column="min_temperature_needle" property="minTemperatureNeedle" />
+        <result column="max_temperature_needle" property="maxTemperatureNeedle" />
+        <result column="min_temperatrure_box_code" property="minTemperatrureBoxCode" />
+        <result column="max_temperatrure_box_code" property="maxTemperatrureBoxCode" />
+        <result column="single_cell_voltage" property="singleCellVoltage" />
+        <result column="single_cell_temperature" property="singleCellTemperature" />
+        <result column="battery_version_information" property="batteryVersionInformation" />
+        <result column="total_number_of_single_batteries" property="totalNumberOfSingleBatteries" />
+        <result column="soc_low_alarm" property="socLowAlarm" />
+        <result column="battery_high_temperature_alarm" property="batteryHighTemperatureAlarm" />
+        <result column="temperature_difference_alarm" property="temperatureDifferenceAlarm" />
+        <result column="equip_overvoltage_alarm" property="equipOvervoltageAlarm" />
+        <result column="equipment_undervoltage_alarm" property="equipmentUndervoltageAlarm" />
+        <result column="system_mismatch_alarm" property="systemMismatchAlarm" />
+        <result column="maximum_alarm_level" property="maximumAlarmLevel" />
+        <result column="type_overcharge_alarm" property="typeOverchargeAlarm" />
+        <result column="soc_jump_alarm" property="socJumpAlarm" />
+        <result column="insulation_alarm" property="insulationAlarm" />
+        <result column="dc_status_alarm" property="dcStatusAlarm" />
+        <result column="dc_temperatrure_alarm" property="dcTemperatrureAlarm" />
+        <result column="high_pressure_interlock_alarm" property="highPressureInterlockAlarm" />
+        <result column="poor_battery_consistency_alarm" property="poorBatteryConsistencyAlarm" />
+        <result column="single_battery_overvoltage_alarm" property="singleBatteryOvervoltageAlarm" />
+        <result column="low_voltage_alarm_for_single_battery" property="lowVoltageAlarmForSingleBattery" />
+        <result column="soc_high_alarm" property="socHighAlarm" />
+        <result column="order_number" property="orderNumber" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, vin, car_current_time, mileages, speed, run_model, charge_state, soc, total_current, total_voltage, max_temperature, min_temperature, max_voltage, min_voltage, min_voltage_cell_code, max_voltage_cell_code, min_voltage_box_code, max_voltage_box_code, min_temperature_needle, max_temperature_needle, min_temperatrure_box_code, max_temperatrure_box_code, single_cell_voltage, single_cell_temperature, battery_version_information, total_number_of_single_batteries, soc_low_alarm, battery_high_temperature_alarm, temperature_difference_alarm, equip_overvoltage_alarm, equipment_undervoltage_alarm, system_mismatch_alarm, maximum_alarm_level, type_overcharge_alarm, soc_jump_alarm, insulation_alarm, dc_status_alarm, dc_temperatrure_alarm, high_pressure_interlock_alarm, poor_battery_consistency_alarm, single_battery_overvoltage_alarm, low_voltage_alarm_for_single_battery, soc_high_alarm,order_number
+    </sql>
+
+    <!--通过ids查询合同-->
+    <select id="findAll" resultType="java.lang.Object">
+        select * from mgl_carshop_futian_data_detail
+    </select>
+
+<!--    查出速度为0,电流正负5之间的-->
+    <select id="findDetailsByVin" resultType="com.mgl.bean.carshop.MglCarshopFutianDataDetail">
+        SELECT car_current_time,vin,speed,single_cell_voltage,total_current from mgl_carshop_futian_data_detail WHERE speed = 0 and ABS(total_current) <![CDATA[ <= ]]> 5 and vin = #{vin}
+    </select>
+</mapper>

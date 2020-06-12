@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: dev #默认为开发环境
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+#日志生成目录
+logging:
+  level:
+    root: debug #日志配置DEBUG,INFO,WARN,ERROR
+    com.brightease.bju: debug
+    org.springframework: debug
+    org.spring.springboot.dao: debug
+  config: classpath:logback-boot.xml
+
+#mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath:mapper/*/*.xml
+  type-aliases-package: com.mgl.bean.*
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+

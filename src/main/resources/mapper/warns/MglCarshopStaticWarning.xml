@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mgl.dao.warns.MglCarshopStaticWarningMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.mgl.bean.warns.MglCarshopStaticWarning">
+        <id column="id" property="id" />
+        <result column="static_presure" property="staticPresure" />
+        <result column="type" property="type" />
+        <result column="cell_number" property="cellNumber" />
+        <result column="del_flag" property="delFlag" />
+        <result column="value" property="value" />
+        <result column="vin" property="vin" />
+        <result column="currets_time_seconds" property="curretsTimeSeconds" />
+        <result column="currets_date_time" property="curretsDateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, static_presure, type, cell_number, del_flag,vin,currets_time_seconds,currets_date_time
+    </sql>
+    <select id="findListByCarVinAndDate" resultType="com.mgl.bean.warns.MglCarshopStaticWarning">
+        select * from mgl_carshop_static_warning where currets_date_time <![CDATA[ >= ]]> #{start} and currets_date_time <![CDATA[ <= ]]> #{end} and vin = #{vin} order by currets_date_time
+    </select>
+
+</mapper>
