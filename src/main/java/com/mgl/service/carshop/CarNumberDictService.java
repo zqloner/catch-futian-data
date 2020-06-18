@@ -3,6 +3,8 @@ package com.mgl.service.carshop;
 import com.mgl.bean.carshop.CarNumberDict;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -13,4 +15,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface CarNumberDictService extends IService<CarNumberDict> {
     CarNumberDict findByCarVin(String carVin);
+
+    List<String> getCarsInfo();
 }

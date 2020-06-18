@@ -55,7 +55,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 30 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -170,7 +170,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 5 * * * ? ")
+    @Scheduled(cron = "0 0 22 * * ? ")
     public void firstArithmetic() throws Exception {
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         LocalDate today = LocalDate.now();
@@ -235,12 +235,12 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 50 * * * ? ")
+    @Scheduled(cron = "0 0 23 * * ? ")
     public void changeLevel() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         LocalDate sevenDaysAgo = yesterday.plusDays(-8);
-        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setType(1).setDelFlag(0)));
+        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
         list.forEach(x -> {
             int flag = 0;
 //            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),sevenDaysAgo.toString(),yesterday.toString(),x.getCellNumber());

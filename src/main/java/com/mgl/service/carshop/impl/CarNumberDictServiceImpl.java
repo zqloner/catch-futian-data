@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -25,5 +26,10 @@ public class CarNumberDictServiceImpl extends ServiceImpl<CarNumberDictMapper, C
     @Override
     public CarNumberDict findByCarVin(String carVin) {
         return carNumberDictMapper.findByVinName(carVin);
+    }
+
+    @Override
+    public List<String> getCarsInfo() {
+        return carNumberDictMapper.getCarsInfo();
     }
 }
