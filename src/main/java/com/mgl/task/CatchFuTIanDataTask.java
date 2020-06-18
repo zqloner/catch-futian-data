@@ -216,7 +216,7 @@ public class CatchFuTIanDataTask {
                     mglCarshopStaticWarning.setCurretsDateTime(yesterday.toString());
                     mglCarshopStaticWarning.setCurretsTimeSeconds(yesterday.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli());
 //                if (d > 40) {
-                    if (asDouble * 1000 > 5) {
+                    if (asDouble * 1000 > 40) {
                         mglCarshopStaticWarning.setType(1);
                         mglCarshopStaticWarnings.add(mglCarshopStaticWarning);
                     } else {
