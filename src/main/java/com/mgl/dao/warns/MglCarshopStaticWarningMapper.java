@@ -18,5 +18,6 @@ import java.util.List;
 @Mapper
 public interface MglCarshopStaticWarningMapper extends BaseMapper<MglCarshopStaticWarning> {
 
-    List<MglCarshopStaticWarning> findListByCarVinAndDate(@Param("vin") String vin, @Param("start") String start, @Param("end") String end);
+    List<MglCarshopStaticWarning> findListByCarVinAndDate(@Param("vin") String vin, @Param("start") String start, @Param("end") String end,@Param("cellNumber") String cellNumber);
+    List<MglCarshopStaticWarning> findListOrder();
 }

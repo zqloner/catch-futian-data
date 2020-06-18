@@ -55,7 +55,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+//    @Scheduled(cron = "0 30 * * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -170,7 +170,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 4 * * ? ")
+//    @Scheduled(cron = "0 5 * * * ? ")
     public void firstArithmetic() throws Exception {
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         LocalDate today = LocalDate.now();
@@ -209,7 +209,6 @@ public class CatchFuTIanDataTask {
                     } else {
                         continue;
                     }
-                    mglCarshopStaticWarning.setStaticPresure(asDouble);
 //                    mglCarshopStaticWarning.setValue(asDouble * 1000);
                     mglCarshopStaticWarning.setValue((double) Math.round(asDouble * 100000) / 100);
 
@@ -236,17 +235,21 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 6 * * ? ")
+    @Scheduled(cron = "0 50 * * * ? ")
     public void changeLevel() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         LocalDate sevenDaysAgo = yesterday.plusDays(-8);
-        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
+        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setType(1).setDelFlag(0)));
         list.forEach(x -> {
             int flag = 0;
-            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(), yesterday.toString(), sevenDaysAgo.toString());
+//            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),sevenDaysAgo.toString(),yesterday.toString(),x.getCellNumber());
+            LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate starDate = localDate.plusDays(-6);
+            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),starDate.toString(),x.getCurretsDateTime(),x.getCellNumber());
             if (listByCarVinAndDate.size() >= 7) {
                 for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
+//                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i+1).getValue()) {
                     if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i+1).getValue()) {
                         break;
                     }

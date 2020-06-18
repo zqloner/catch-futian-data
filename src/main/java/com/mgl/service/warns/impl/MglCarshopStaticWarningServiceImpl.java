@@ -23,7 +23,12 @@ public class MglCarshopStaticWarningServiceImpl extends ServiceImpl<MglCarshopSt
     private MglCarshopStaticWarningMapper mglCarshopStaticWarningMapper;
 
     @Override
-    public List<MglCarshopStaticWarning> findListByCarVinAndDate(String vin, String start, String end) {
-        return mglCarshopStaticWarningMapper.findListByCarVinAndDate(vin, start,end);
+    public List<MglCarshopStaticWarning> findListByCarVinAndDate(String vin, String start, String end,String cellNumber) {
+        return mglCarshopStaticWarningMapper.findListByCarVinAndDate(vin, start,end,cellNumber);
+    }
+
+    @Override
+    public List<MglCarshopStaticWarning> findListOrder() {
+        return mglCarshopStaticWarningMapper.findListOrder();
     }
 }

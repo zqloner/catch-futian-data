@@ -159,7 +159,7 @@ public class MglCarshopFutianDataDetail implements Serializable {
     /**
      * 单体电池电压(这是多个）   1110108-1
      */
-    @ExcelColumn(value = "单体电池电压", col = 23)
+    @ExcelColumn(value = "单体电池温度", col = 23)
     private String singleCellTemperature;
 
     /**

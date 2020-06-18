@@ -15,5 +15,6 @@ import java.util.List;
  */
 public interface MglCarshopStaticWarningService extends IService<MglCarshopStaticWarning> {
 
-    List<MglCarshopStaticWarning> findListByCarVinAndDate(String vin, String start, String end);
+    List<MglCarshopStaticWarning> findListByCarVinAndDate(String vin, String start, String end,String cellNumber);
+    List<MglCarshopStaticWarning> findListOrder();
 }

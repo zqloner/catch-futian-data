@@ -63,5 +63,6 @@
 <!--    查出速度为0,电流正负5之间的-->
     <select id="findDetailsByVin" resultType="com.mgl.bean.carshop.MglCarshopFutianDataDetail">
         SELECT car_current_time,vin,speed,single_cell_voltage,total_current from mgl_carshop_futian_data_detail WHERE speed = 0 and ABS(total_current) <![CDATA[ <= ]]> 5 and vin = #{vin}
+        and car_current_time <![CDATA[ >= ]]> #{start} and car_current_time <![CDATA[ <= ]]> #{end}
     </select>
 </mapper>
