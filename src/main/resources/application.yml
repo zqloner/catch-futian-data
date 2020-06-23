@@ -10,11 +10,13 @@ server:
 #日志生成目录
 logging:
   level:
-    root: debug #日志配置DEBUG,INFO,WARN,ERROR
+    root: info #日志配置DEBUG,INFO,WARN,ERROR
     com.brightease.bju: debug
-    org.springframework: debug
-    org.spring.springboot.dao: debug
+    org.springframework: WARN
+    org.spring.springboot.dao: info
   config: classpath:logback-boot.xml
+#  file: demo_log.log #配置日志生成路径
+#  path: /var/logs #配置日志文件名称
 
 #mybatis-plus
 mybatis-plus:
