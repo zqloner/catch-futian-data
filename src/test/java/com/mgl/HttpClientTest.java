@@ -2,22 +2,11 @@ package com.mgl;
 
 
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.TimeInterval;
-import com.baomidou.mybatisplus.extension.api.R;
 import com.mgl.bean.carshop.CarNumberDict;
-import com.mgl.utils.CsvExportUtil;
-import com.mgl.utils.MyHttpClientUtils;
+import com.mgl.utils.csv.CsvExportUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.CollectionUtils;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -14,17 +14,21 @@ import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
 import com.mgl.bean.dto.VoltageVo;
 import com.mgl.bean.warns.MglCarshopStaticWarning;
+import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
 import com.mgl.utils.MyHttpClientUtils;
+import com.mgl.utils.csv.CsvExportUtil;
+import com.mgl.utils.props.BeanAndMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -55,24 +59,24 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 12 * * ? ")
+    @Scheduled(cron = "0 51 * * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
-        String url = "http://api.itink.com.cn/api/vehicle/getCanBusByCarId.json";
+        String url = Gloables.API_URL;
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         Map<String, Object> params = new HashMap();
-        params.put("token", "2b37d26a9d4446d48a0a87a0f6852355");
-        params.put("queryDate", yesterday);
+        params.put(Gloables.API_PARAM_TOKEN,Gloables.API_TOKEN );
+        params.put(Gloables.API_PARAM_DATE, yesterday);
         TimeInterval timer = DateUtil.timer();
         for (CarNumberDict car : cars) {
             try {
-                params.put("carId", car.getCarVin());
+                params.put(Gloables.API_PARAM_CARID, car.getCarVin());
                 timer.intervalRestart();
                 String content = MyHttpClientUtils.doGetParam(url, params);
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>抓取花费时间: " + timer.intervalSecond() + "s");
                 timer.intervalRestart();
-                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get("carId")).setTextContent(content).setRealDate(yesterday).setCreateDate(today));
+                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setTextContent(content).setRealDate(yesterday).setCreateDate(today));
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>存库花费时间: " + timer.intervalSecond() + "s");
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
@@ -81,14 +85,26 @@ public class CatchFuTIanDataTask {
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 timer.intervalRestart();
                 List<MglCarshopFutianDataDetail> mglCarshopFutianDataDetails = new ArrayList<>();
+//                导出到csv
+                List<Map<String, Object>> datas = new ArrayList<>();
+                String fileName =  params.get(Gloables.API_PARAM_CARID)+Gloables.CSV_EXTENT;
+                FileOutputStream os = new FileOutputStream(Gloables.CSV_PATH+fileName);
+                // 构造导出数据结构
+                String titles = Gloables.CSV_TITLES;  // 设置表头
+                String keys = Gloables.CSV_KEYS;  // 设置每列字段
+
                 data.forEach(x -> {
 //                    每条数据的代码
                     Map<String, String> codes = x.getCodes();
+//                    导出到csv
+                    Map<String, Object> map = new HashMap<>();
 //                    创建数据
                     MglCarshopFutianDataDetail mglCarshopFutianDataDetail = new MglCarshopFutianDataDetail();
-                    mglCarshopFutianDataDetail.setVin((String) params.get("carId"));
+                    mglCarshopFutianDataDetail.setVin((String) params.get(Gloables.API_PARAM_CARID));
+                    map.put("vin",(String) params.get(Gloables.API_PARAM_CARID));
                     mglCarshopFutianDataDetail.setOrderNumber(car.getOrderNumber());
                     mglCarshopFutianDataDetail.setCarCurrentTime(x.getTime());
+                    map.put("car_current_time",x.getTime());
                     if (!StringUtils.isBlank(codes.get("1030002"))) {
                         try {
                             mglCarshopFutianDataDetail.setMileages((Double.parseDouble(codes.get("1030002")) / 1000) + "");
@@ -97,18 +113,32 @@ public class CatchFuTIanDataTask {
                             e.printStackTrace();
                         }
                     }
+                    map.put("mileages",codes.get("1030002"));
                     mglCarshopFutianDataDetail.setSpeed(codes.get("1010027"));
+                    map.put("speed",codes.get("1010027"));
                     mglCarshopFutianDataDetail.setRunModel(codes.get("1140013"));
                     mglCarshopFutianDataDetail.setChargeState(codes.get("1110004"));
+//                    SOC
                     mglCarshopFutianDataDetail.setSoc(codes.get("1110045"));
+                    map.put("soc",codes.get("1110045"));
+//                    总电流总电压最高温度最低温度
                     mglCarshopFutianDataDetail.setTotalCurrent(codes.get("1110044"));
+                    map.put("total_current",codes.get("1110044"));
                     mglCarshopFutianDataDetail.setTotalVoltage(codes.get("1110043"));
+                    map.put("total_voltage",codes.get("1110043"));
                     mglCarshopFutianDataDetail.setMaxTemperature(codes.get("1110050"));
+                    map.put("max_temperature",codes.get("1110050"));
                     mglCarshopFutianDataDetail.setMinTemperature(codes.get("1110049"));
+                    map.put("min_temperature",codes.get("1110049"));
+//                    最高最低电压以及编号
                     mglCarshopFutianDataDetail.setMaxVoltage(codes.get("1110048"));
+                    map.put("max_voltage",codes.get("1110048"));
                     mglCarshopFutianDataDetail.setMinVoltage(codes.get("1110047"));
+                    map.put("min_voltage",codes.get("1110047"));
                     mglCarshopFutianDataDetail.setMinVoltageCellCode(codes.get("1110070"));
+                    map.put("max_voltage_cell_code",codes.get("1110070"));
                     mglCarshopFutianDataDetail.setMaxVoltageCellCode(codes.get("1110068"));
+                    map.put("min_voltage_cell_code",codes.get("1110068"));
                     mglCarshopFutianDataDetail.setMinVoltageBoxCode(codes.get("1110069"));
                     mglCarshopFutianDataDetail.setMaxVoltageBoxCode(codes.get("1110067"));
                     mglCarshopFutianDataDetail.setMinTemperatureNeedle(codes.get("1110074"));
@@ -153,8 +183,12 @@ public class CatchFuTIanDataTask {
                     mglCarshopFutianDataDetail.setSingleBatteryOvervoltageAlarm(codes.get("1130180"));
                     mglCarshopFutianDataDetail.setLowVoltageAlarmForSingleBattery(codes.get("1130181"));
                     mglCarshopFutianDataDetail.setSocHighAlarm(codes.get("1130183"));
+//                    这是导出csv
+                    datas.add(map);
                     mglCarshopFutianDataDetails.add(mglCarshopFutianDataDetail);
                 });
+//                导出到csv
+                CsvExportUtil.doExport(datas, titles, keys, os);
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>执行循环花费时间: " + timer.intervalSecond() + "s");
                 timer.intervalRestart();
                 mglCarshopFutianDataDetailService.saveBatch(mglCarshopFutianDataDetails);
@@ -220,7 +254,7 @@ public class CatchFuTIanDataTask {
                     mglCarshopStaticWarning.setCurretsDateTime(yesterday.toString());
                     mglCarshopStaticWarning.setCurretsTimeSeconds(yesterday.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli());
 //                if (d > 40) {
-                    if (asDouble * 1000 > 40) {
+                    if (asDouble * 1000 > Gloables.WORINING_VALUE) {
                         mglCarshopStaticWarning.setType(1);
                         mglCarshopStaticWarnings.add(mglCarshopStaticWarning);
                     } else {
