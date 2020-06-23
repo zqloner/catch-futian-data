@@ -1,10 +1,28 @@
 package com.mgl;
 
-import com.mgl.utils.MyHttpClientUtils;
 
+
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.TimeInterval;
+import com.baomidou.mybatisplus.extension.api.R;
+import com.mgl.bean.carshop.CarNumberDict;
+import com.mgl.utils.CsvExportUtil;
+import com.mgl.utils.MyHttpClientUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.CollectionUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 
 /**
  * @Title: HttpClientTest
@@ -13,37 +31,70 @@ import java.util.Map;
  * @author: 张奇
  * @date: ceate in 2020/6/5 18:37
  */
+@Slf4j
 public class HttpClientTest {
-    public static void main(String[] args) throws InterruptedException {
-//        TimeInterval timer = DateUtil.timer();
-//        Long start = System.currentTimeMillis();
-//        System.out.println(DateUtil.now());
-//        System.out.println(DateUtil.date());
-//        System.out.println(DateUtil.yesterday());
-//        System.out.println(DateUtil.tomorrow());
-//        LocalDate now = LocalDate.now();
-//        Long end = System.currentTimeMillis();
-//        System.out.println(timer.intervalRestart()/1000+"================>");
-//        System.out.println("end -start:====>" +(end - start));
-//        Thread.sleep(3000);
-//        System.out.println(now);
-//        System.out.println(now.plusDays(-1));
-//        Long end2 = System.currentTimeMillis();
-//        System.out.println("end2 - end: ====>"+(end2-end));
-//        System.out.println(timer.intervalSecond()+"==================>");
+    public static void main(String[] args) throws Exception {
+//        LocalDate today = LocalDate.now();
+//        LocalDate yesterday = today.plusDays(-1);
+//        String url = "http://api.itink.com.cn/api/vehicle/getCanBusByCarId.json";
+//
+//        Map<String, Object> params = new HashMap();
+//        params.put("token", "2b37d26a9d4446d48a0a87a0f6852355");
+////        params.put("queryDate", yesterday);
+//        params.put("queryDate", "2020-06-22");
+//        params.put("carId", "LVCB3L4D2GM001991");
+//        String content = MyHttpClientUtils.doGetParam(url, params);
+//        System.out.println(content);
 
 
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.plusDays(-1);
-        String url = "http://api.itink.com.cn/api/vehicle/getCanBusByCarId.json";
 
-        Map<String, Object> params = new HashMap();
-        params.put("token", "2b37d26a9d4446d48a0a87a0f6852355");
-//        params.put("queryDate", yesterday);
-        params.put("queryDate", "2020-06-05");
-        params.put("carId", "LVCB3L4D6JM002360");
+        // 查询需要导出的数据
+        List<CarNumberDict> carNumberDicts = new ArrayList<>();
+        CarNumberDict dict1 = new CarNumberDict();
+        CarNumberDict dict2 = new CarNumberDict();
+        CarNumberDict dict3 = new CarNumberDict();
+        dict1.setCarVin("4234fdsrwer");
+        dict2.setCarVin("fadsfdasga");
+        dict3.setCarVin("pepjofdlr");
+        dict1.setOrderNumber("2356465");
+        dict2.setOrderNumber("56465321");
+        dict3.setOrderNumber("6846465");
+        dict1.setCity("北京");
+        dict2.setCity("四川");
+        dict3.setCity("山东");
 
-        String content = MyHttpClientUtils.doGetParam(url, params);
+        carNumberDicts.add(dict1);
+        carNumberDicts.add(dict2);
+        carNumberDicts.add(dict3);
 
+
+        // 构造导出数据结构
+        String titles = "vin,订单号,城市";  // 设置表头
+        String keys = "vin,order,city";  // 设置每列字段
+
+        // 构造导出数据
+        List<Map<String, Object>> datas = new ArrayList<>();
+        Map<String, Object> map = null;
+        for (CarNumberDict dict : carNumberDicts) {
+            map = new HashMap<>();
+            map.put("vin", dict.getCarVin());
+            map.put("order", dict.getOrderNumber());
+            map.put("city", dict.getCity());
+            datas.add(map);
+        }
+
+        // 设置导出文件前缀
+        String fName = "data_";
+
+        // 文件导出
+        try {
+//            OutputStream os = response.getOutputStream();
+            FileOutputStream os = new FileOutputStream("D:\\aaa\\a.csv");
+//            CsvExportUtil.responseSetProperties(fName, os);
+            CsvExportUtil.doExport(datas, titles, keys, os);
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

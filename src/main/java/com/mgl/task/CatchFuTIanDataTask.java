@@ -55,7 +55,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 0 12 * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -89,9 +89,13 @@ public class CatchFuTIanDataTask {
                     mglCarshopFutianDataDetail.setVin((String) params.get("carId"));
                     mglCarshopFutianDataDetail.setOrderNumber(car.getOrderNumber());
                     mglCarshopFutianDataDetail.setCarCurrentTime(x.getTime());
-                    mglCarshopFutianDataDetail.setMileages(codes.get("1030002"));
                     if (!StringUtils.isBlank(codes.get("1030002"))) {
-                        mglCarshopFutianDataDetail.setMileages((Double.parseDouble(codes.get("1030002")) / 1000) + "");
+                        try {
+                            mglCarshopFutianDataDetail.setMileages((Double.parseDouble(codes.get("1030002")) / 1000) + "");
+                        } catch (NumberFormatException e) {
+                            mglCarshopFutianDataDetail.setMileages(codes.get("1030002"));
+                            e.printStackTrace();
+                        }
                     }
                     mglCarshopFutianDataDetail.setSpeed(codes.get("1010027"));
                     mglCarshopFutianDataDetail.setRunModel(codes.get("1140013"));
