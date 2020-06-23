@@ -24,6 +24,7 @@ import com.mgl.utils.csv.CsvExportUtil;
 import com.mgl.utils.props.BeanAndMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -54,12 +55,15 @@ public class CatchFuTIanDataTask {
     @Resource
     private MglCarshopStaticWarningService mglCarshopStaticWarningService;
 
+    @Value("${brightease.csvPath}")
+    private String csvPath;
+
     /**
      * 抓取数据
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 51 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -88,7 +92,7 @@ public class CatchFuTIanDataTask {
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
                 String fileName =  params.get(Gloables.API_PARAM_CARID)+Gloables.CSV_EXTENT;
-                FileOutputStream os = new FileOutputStream(Gloables.CSV_PATH+fileName);
+                FileOutputStream os = new FileOutputStream(csvPath+fileName);
                 // 构造导出数据结构
                 String titles = Gloables.CSV_TITLES;  // 设置表头
                 String keys = Gloables.CSV_KEYS;  // 设置每列字段
@@ -208,7 +212,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 22 * * ? ")
+    @Scheduled(cron = "0 0 20 * * ? ")
     public void firstArithmetic() throws Exception {
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         LocalDate today = LocalDate.now();

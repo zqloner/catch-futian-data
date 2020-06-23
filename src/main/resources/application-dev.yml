@@ -1,7 +1,8 @@
 #上传路径配置
-#brightease:
-#  filePath: d:/
-#  tempUpLoadPath: d:/
+brightease:
+  csvPath: d:/
+  filePath: d:/
+  tempUpLoadPath: d:/
 
 #mysql
 spring:
