@@ -140,13 +140,15 @@ public class CatchFuTIanDataTask {
                     mglCarshopFutianDataDetail.setMinVoltage(codes.get("1110047"));
                     map.put("min_voltage",codes.get("1110047"));
                     mglCarshopFutianDataDetail.setMinVoltageCellCode(codes.get("1110070"));
-                    map.put("max_voltage_cell_code",codes.get("1110070"));
+                    map.put("min_voltage_cell_code",codes.get("1110070"));
                     mglCarshopFutianDataDetail.setMaxVoltageCellCode(codes.get("1110068"));
-                    map.put("min_voltage_cell_code",codes.get("1110068"));
+                    map.put("max_voltage_cell_code",codes.get("1110068"));
                     mglCarshopFutianDataDetail.setMinVoltageBoxCode(codes.get("1110069"));
                     mglCarshopFutianDataDetail.setMaxVoltageBoxCode(codes.get("1110067"));
                     mglCarshopFutianDataDetail.setMinTemperatureNeedle(codes.get("1110074"));
+                    map.put("max_temperature_needle",codes.get("1110074"));
                     mglCarshopFutianDataDetail.setMaxTemperatureNeedle(codes.get("1110072"));
+                    map.put("min_temperature_needle",codes.get("1110072"));
                     mglCarshopFutianDataDetail.setMinTemperatrureBoxCode(codes.get("1110073"));
                     mglCarshopFutianDataDetail.setMaxTemperatrureBoxCode(codes.get("1110071"));
 //                    获取codes键

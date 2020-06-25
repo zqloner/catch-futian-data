@@ -17,8 +17,8 @@ public interface Gloables {
     //    导出到CSV
     String CSV_EXTENT = ".csv";    //导出的路径,用于拼接
     String CSV_PATH = "D:\\aaa\\";    //导出的路径,用于拼接
-    String CSV_TITLES = "vin,车速,时间,里程,单体最高电压,单体坐高电压编号,单体最低电压,单体最低电压编号,总电压,总电流,最高温度,最低温度,SOC";  // 设置表头
-    String CSV_KEYS = "vin,speed,car_current_time,mileages,max_voltage,max_voltage_cell_code,min_voltage,min_voltage_cell_code,total_voltage,total_current,max_temperature,min_temperature,soc";  // 设置每列字段
+    String CSV_TITLES = "vin,车速,时间,里程,单体最高电压,单体最高电压编号,单体最低电压,单体最低电压编号,总电压,总电流,最高温度,最低温度,最高温度所在模块数,最低温度所在模块数,SOC";  // 设置表头
+    String CSV_KEYS = "vin,speed,car_current_time,mileages,max_voltage,max_voltage_cell_code,min_voltage,min_voltage_cell_code,total_voltage,total_current,max_temperature,min_temperature,max_temperature_needle,min_temperature_needle,soc";  // 设置每列字段
 
 //    报警临界值
     Double WORINING_VALUE = 40D;

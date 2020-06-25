@@ -1,5 +1,6 @@
 package com.mgl.controller.upload;
 
+import com.mgl.utils.ftp.bju.FileUploadUtil;
 import com.mgl.utils.ftp.util.MyFTPUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
@@ -30,8 +31,7 @@ public class UploadsDownloadsController {
     @ResponseBody
     public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest req)
             throws IllegalStateException, IOException {
-        MyFTPUtils ftp =new MyFTPUtils();
-        ftp.uploadFile("static/image", file.getOriginalFilename(), file.getInputStream());
-        return "http://static.image.com/ftp/images/"+"static/image/"+file.getOriginalFilename();
+
+        return  FileUploadUtil.upload(file.getInputStream(), "catch-data", file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1));
     }
 }

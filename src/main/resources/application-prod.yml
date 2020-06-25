@@ -40,13 +40,13 @@ spring:
       max-file-size: 100MB
 
 #设置ftp
-#ftp:
-#  host: 192.168.29.101
-#  port: 22
-#  username: root
-#  password: 123456
-#  defatultport: 22
-#  serverpath: bju
-#  req:
-#    url: 192.168.29.101
+ftp:
+  host: 192.168.0.110
+  port: 22
+  username: root
+  password: 1qazXSW@
+  defatultport: 22
+  serverpath: carsfile
+  req:
+    url: 192.168.0.110
 

@@ -21,13 +21,16 @@ import java.util.Date;
 public class MyFTPUtils {
     //ftp服务器地址
 //    public String hostname = "192.168.29.250";
-    public String hostname = "10.0.1.10";
+//    public String hostname = "10.0.1.10";
+    public String hostname = "192.168.0.110";
     //ftp服务器端口号默认为21
-    public Integer port = 21;
+    public Integer port = 22;
     //ftp登录账号
-    public String username = "zhangqi_ftp";
+//    public String username = "zhangqi_ftp";
+    public String username = "root";
     //ftp登录密码
-    public String password = "zhangqi123456";
+//    public String password = "zhangqi123456";
+    public String password = "1qazXSW@";
 
     public FTPClient ftpClient = null;
 
