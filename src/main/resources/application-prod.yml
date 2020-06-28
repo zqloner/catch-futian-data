@@ -1,8 +1,8 @@
 #上传路径配置
 brightease:
-  csvPath: /opt/project/csvfile/
-  filePath: /opt/root/bju/
-  tempUpLoadPath: /opt/root/bju/temp/
+  csvPath: /opt/project/beiyou/
+  filePath: /opt/root/beiyou/
+  tempUpLoadPath: /opt/root/beiyou/temp/
 
 #mysql
 spring:

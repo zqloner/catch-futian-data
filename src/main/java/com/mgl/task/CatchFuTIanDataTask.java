@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -63,7 +64,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 37 * * * ? ")
+    @Scheduled(cron = "0 36 * * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -85,39 +86,12 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-//        转换时间
-                DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 timer.intervalRestart();
                 List<MglCarshopFutianDataDetail> mglCarshopFutianDataDetails = new ArrayList<>();
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
-                String fileName =  params.get(Gloables.API_PARAM_CARID)+Gloables.CSV_EXTENT;
+                String fileName =  params.get(Gloables.API_PARAM_CARID)+"-"+new SimpleDateFormat("yyyyMMdd").format(new Date())+Gloables.CSV_EXTENT;
                 FileOutputStream os = new FileOutputStream(csvPath+fileName);
-                // 构造导出数据结构
-                String titles = Gloables.CSV_TITLES;  // 设置表头
-                String keys = Gloables.CSV_KEYS;  // 设置每列字段
-
-//                导出温度和电压
-                List<Map<String, Object>> temps = new ArrayList<>();
-                List<Map<String, Object>> vols = new ArrayList<>();
-                String fileName1 =  params.get(Gloables.API_PARAM_CARID)+"-temp"+Gloables.CSV_EXTENT;
-                String fileName2 =  params.get(Gloables.API_PARAM_CARID)+"-vol"+Gloables.CSV_EXTENT;
-                FileOutputStream os1 = new FileOutputStream(csvPath+fileName1);
-                FileOutputStream os2 = new FileOutputStream(csvPath+fileName2);
-                StringBuilder temp = new StringBuilder("vin,time,");
-                StringBuilder vol = new StringBuilder("vin,time,");
-                for (int i = 0; i < 100; i++) {
-                    temp.append("T" + (i+1) + ",");
-                }
-                for (int i = 0; i < 300; i++) {
-                    vol.append("V" + (i+1) + ",");
-                }
-//                StringBuilder titles1 = new StringBuilder("vin,时间,");  // 设置表头
-                StringBuilder keys1 = new StringBuilder("vin,time,");  // 设置每列字段
-
-                StringBuilder keys2 = new StringBuilder("vin,time,");  // 设置表头
-//                String keys2 = Gloables.CSV_KEYS;  // 设置每列字段
-
                 data.forEach(x -> {
 //                    每条数据的代码
                     Map<String, String> codes = x.getCodes();
@@ -139,11 +113,12 @@ public class CatchFuTIanDataTask {
                     if (!StringUtils.isBlank(codes.get("1030002"))) {
                         try {
                             mglCarshopFutianDataDetail.setMileages((Double.parseDouble(codes.get("1030002")) / 1000) + "");
+                            map.put("mileages",(Double.parseDouble(codes.get("1030002")) / 1000) + "");
                         } catch (NumberFormatException e) {
                             mglCarshopFutianDataDetail.setMileages(codes.get("1030002"));
+                            map.put("mileages",codes.get("1030002"));
                         }
                     }
-                    map.put("mileages",codes.get("1030002"));
                     mglCarshopFutianDataDetail.setSpeed(codes.get("1010027"));
                     map.put("speed",codes.get("1010027"));
                     mglCarshopFutianDataDetail.setRunModel(codes.get("1140013"));
@@ -182,25 +157,51 @@ public class CatchFuTIanDataTask {
                     List<String> collect1 = codes.keySet().stream().filter(y -> y.contains("1110108-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
                     List<VoltageVo> list = new ArrayList<>();
                     List<VoltageVo> list1 = new ArrayList<>();
+                    List<Double> list3 = new ArrayList<>();
+                    List<Double> list4 = new ArrayList<>();
                     for (int i = 0; i < collect.size(); i++) {
                         VoltageVo voltageVo = new VoltageVo();
                         voltageVo.setKey(collect.get(i));
                         voltageVo.setValue(Double.valueOf(codes.get(collect.get(i))));
                         list.add(voltageVo);
+                        list3.add(Double.valueOf(codes.get(collect.get(i))));
                         voltage.put("V" + (i + 1),codes.get(collect.get(i)));
                     }
+//                    单体电压
+                    map.put("single_voltage", StringUtils.join(list3, "|"));
+//                    绝缘电阻
+                    map.put("insulation_resistance", codes.get("1110085"));
+//                    单体温度
                     for (int i = 0; i < collect1.size(); i++) {
                         VoltageVo voltageVo = new VoltageVo();
                         voltageVo.setKey(collect1.get(i));
                         voltageVo.setValue(Double.valueOf(codes.get(collect1.get(i))));
                         list1.add(voltageVo);
+                        list4.add(Double.valueOf(codes.get(collect1.get(i))));
                         temperature.put("T" + (i + 1),codes.get(collect1.get(i)));
                     }
+                    map.put("singel_temperature", StringUtils.join(list4, "|"));
                     mglCarshopFutianDataDetail.setSingleCellVoltage(JSONObject.toJSONString(list));
                     mglCarshopFutianDataDetail.setSingleCellTemperature(JSONObject.toJSONString(list1));
                     mglCarshopFutianDataDetail.setBatteryVersionInformation(codes.get("1130195"));
                     mglCarshopFutianDataDetail.setTotalNumberOfSingleBatteries(codes.get("1110076-1"));
                     mglCarshopFutianDataDetail.setSocLowAlarm(codes.get("1110065"));
+                    map.put("soc_low_alarm", codes.get("1110065"));
+                    map.put("battery_high_temperature_alarm", codes.get("1110064"));
+                    map.put("temperature_difference_alarm", codes.get("1110061"));
+                    map.put("equip_overvoltage_alarm", codes.get("1110054"));
+                    map.put("equipment_undervoltage_alarm", codes.get("1110053"));
+                    map.put("system_mismatch_alarm", codes.get("1110052"));
+                    map.put("maximum_alarm_level", codes.get("1110046"));
+                    map.put("type_overcharge_alarm", codes.get("1140017"));
+                    map.put("soc_jump_alarm", codes.get("1140019"));
+                    map.put("insulation_alarm", codes.get("1110087"));
+                    map.put("dc_status_alarm", codes.get("1130237"));
+                    map.put("high_pressure_interlock_alarm", codes.get("1110157"));
+                    map.put("poor_battery_consistency_alarm", codes.get("1110132"));
+                    map.put("single_battery_overvoltage_alarm", codes.get("1130180"));
+                    map.put("low_voltage_alarm_for_single_battery", codes.get("1130181"));
+                    map.put("soc_high_alarm", codes.get("1130183"));
                     mglCarshopFutianDataDetail.setBatteryHighTemperatureAlarm(codes.get("1110064"));
                     mglCarshopFutianDataDetail.setTemperatureDifferenceAlarm(codes.get("1110061"));
                     mglCarshopFutianDataDetail.setEquipOvervoltageAlarm(codes.get("1110054"));
@@ -219,14 +220,10 @@ public class CatchFuTIanDataTask {
                     mglCarshopFutianDataDetail.setSocHighAlarm(codes.get("1130183"));
 //                    这是导出csv
                     datas.add(map);
-                    temps.add(temperature);
-                    vols.add(voltage);
                     mglCarshopFutianDataDetails.add(mglCarshopFutianDataDetail);
                 });
 //                导出到csv
-                CsvExportUtil.doExport(datas, titles, keys, os);
-                CsvExportUtil.doExport(temps, temp.toString(), temp.toString(), os1);
-                CsvExportUtil.doExport(vols, vol.toString(), vol.toString(), os2);
+                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, os);
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>执行循环花费时间: " + timer.intervalSecond() + "s");
                 timer.intervalRestart();
                 mglCarshopFutianDataDetailService.saveBatch(mglCarshopFutianDataDetails);
