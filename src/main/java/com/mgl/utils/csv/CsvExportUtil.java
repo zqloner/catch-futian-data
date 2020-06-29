@@ -64,7 +64,7 @@ public class CsvExportUtil {
                 }
 
                 // 写出响应
-                os.write(buf.toString().getBytes("GBK"));
+                os.write(buf.toString().getBytes("UTF-8"));
                 os.flush();
             } catch (IOException e) {
                 e.printStackTrace();

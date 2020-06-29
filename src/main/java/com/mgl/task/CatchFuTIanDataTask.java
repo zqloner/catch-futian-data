@@ -64,7 +64,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 36 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -72,7 +72,8 @@ public class CatchFuTIanDataTask {
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         Map<String, Object> params = new HashMap();
         params.put(Gloables.API_PARAM_TOKEN,Gloables.API_TOKEN );
-        params.put(Gloables.API_PARAM_DATE, yesterday);
+//        params.put(Gloables.API_PARAM_DATE, yesterday);
+        params.put(Gloables.API_PARAM_DATE, "2020-06-27");
         TimeInterval timer = DateUtil.timer();
         for (CarNumberDict car : cars) {
             try {
