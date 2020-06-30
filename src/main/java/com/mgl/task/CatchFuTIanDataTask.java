@@ -72,8 +72,7 @@ public class CatchFuTIanDataTask {
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         Map<String, Object> params = new HashMap();
         params.put(Gloables.API_PARAM_TOKEN,Gloables.API_TOKEN );
-//        params.put(Gloables.API_PARAM_DATE, yesterday);
-        params.put(Gloables.API_PARAM_DATE, "2020-06-27");
+        params.put(Gloables.API_PARAM_DATE, yesterday);
         TimeInterval timer = DateUtil.timer();
         for (CarNumberDict car : cars) {
             try {
