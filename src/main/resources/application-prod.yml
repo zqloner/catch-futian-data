@@ -1,6 +1,6 @@
 #上传路径配置
 brightease:
-  csvPath: /opt/project/beiyou/
+  csvPath: /opt/project/beiyou/csvfile/
   filePath: /opt/root/beiyou/
   tempUpLoadPath: /opt/root/beiyou/temp/
 
