@@ -1,6 +1,7 @@
 package com.mgl.utils.csv;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,7 +50,12 @@ public class CsvExportUtil {
 
                 // 组装表头
                 for (String title : titleArr) {
-                    buf.append(title).append(CSV_COLUMN_SEPARATOR);
+                    if (StringUtils.isNotBlank(title) && !title.equals(titleArr[titleArr.length - 1])) {
+                        buf.append(title).append(CSV_COLUMN_SEPARATOR);
+                    } else {
+                        buf.append(title);
+                    }
+
                 }
                 buf.append(CSV_ROW_SEPARATOR);
 

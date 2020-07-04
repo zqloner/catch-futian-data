@@ -12,12 +12,15 @@ import com.mgl.bean.carshop.MglCarshopFutianDataDetail;
 import com.mgl.bean.carshop.MglCarshopTianfuData;
 import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
+import com.mgl.bean.dto.GoldenDragonDto;
 import com.mgl.bean.dto.VoltageVo;
+import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.bean.warns.MglCarshopStaticWarning;
 import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
+import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
 import com.mgl.utils.MyHttpClientUtils;
 import com.mgl.utils.csv.CsvExportUtil;
@@ -55,6 +58,8 @@ public class CatchFuTIanDataTask {
     private MglCarshopFutianDataDetailService mglCarshopFutianDataDetailService;
     @Resource
     private MglCarshopStaticWarningService mglCarshopStaticWarningService;
+    @Resource
+    private GoldenDragonService goldenDragonService;
 
     @Value("${brightease.csvPath}")
     private String csvPath;
@@ -64,7 +69,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 50 * * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -334,5 +339,50 @@ public class CatchFuTIanDataTask {
                 mglCarshopStaticWarningService.saveOrUpdate(mglCarshopStaticWarning);
             }
         });
+    }
+
+    /**
+     * 抓取金龙数据
+     * @throws Exception
+     */
+//    @Scheduled(cron = "*/15 * * * * ? ")
+    public void getGoldenDragonData() throws Exception {
+        String token = MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
+        List<String> cars = new ArrayList<>();
+        cars.add("LA9CB22D3KALA6162");
+        cars.add("LA6C7GAB1JC304865");
+        cars.add("LA6C7GAB2JB201959");
+        cars.add("LA9CB22D0K0LA6058");
+        cars.add("LA6C7K1B7JB201894");
+        String vehicles = StringUtils.join(cars, ",");
+        String finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + token;
+        String datas = MyHttpClientUtils.doGet(finalUrl);
+        List<GoldenDragon> goldenDragons = new ArrayList<>();
+        GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
+        List<Map<String, String>> mapDatas = goldenDragonDto.getData();
+        GoldenDragon dragon = new GoldenDragon();
+        mapDatas.forEach(x->{
+            dragon.setVin(x.get("VehicleID"));
+            dragon.setTerminalNumber("DeviceNo");
+            dragon.setOnline("Online");
+            dragon.setResult(x.get("Result"));
+            dragon.setSoc(x.get("329611"));
+            dragon.setParamsFirst(x.get("329622"));
+            dragon.setParamsSecond(x.get("329623"));
+            dragon.setParamsThird(x.get("329624"));
+            dragon.setParamsFouth(x.get("329625"));
+            dragon.setParamsFiveth(x.get("329626"));
+            dragon.setParamsSix(x.get("329627"));
+            dragon.setParamsSeven(x.get("329628"));
+            dragon.setParamsEight(x.get("329629"));
+            dragon.setParamsTen(x.get("329630"));
+            dragon.setParamsEleven(x.get("329631"));
+            dragon.setParamsTewlve(x.get("329632"));
+            dragon.setParamsThirteen(x.get("329633"));
+            dragon.setParamsFourteen(x.get("329635"));
+            dragon.setCeateTime(LocalDateTime.now());
+            goldenDragons.add(dragon);
+        });
+        goldenDragonService.saveBatch(goldenDragons);
     }
 }

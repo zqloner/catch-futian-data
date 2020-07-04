@@ -22,4 +22,8 @@ public interface Gloables {
 
 //    报警临界值
     Double WORINING_VALUE = 40D;
+
+    String GOLD_TOKEN_URL = "http://106.13.23.167:9095/api?v=1.0&ak=12345001";
+    String GOLD_DATA_BASE_URL = "http://106.13.23.167:9095/VehicleData/GetByVehicleVIN?vehicles=";
+    String GOLD_PARAMS_TYPES = "&types=329609,329610,329611,329622,329623,329624,329625,329626,329627,329628,329629,329630,329631,329632,329633,329635&token=";
 }
