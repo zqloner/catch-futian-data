@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mgl.dao.carshop.CarNumberDictMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.mgl.bean.carshop.CarNumberDict">
+        <id column="id" property="id" />
+        <result column="car_vin" property="carVin" />
+        <result column="car_number" property="carNumber" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="county_info" property="countyInfo" />
+        <result column="vehicle_customer" property="vehicleCustomer" />
+        <result column="battery_number" property="batteryNumber" />
+        <result column="order_number" property="orderNumber" />
+        <result column="battery_type" property="batteryType" />
+        <result column="single_capacity" property="singleCapacity" />
+        <result column="now_bcu_software_version" property="nowBcuSoftwareVersion" />
+        <result column="original_bcu_software_version" property="originalBcuSoftwareVersion" />
+        <result column="bus_route" property="busRoute" />
+        <result column="bus_company" property="busCompany" />
+        <result column="vehicle_service_time" property="vehicleServiceTime" />
+        <result column="mixed_model" property="mixedModel" />
+        <result column="main_turning_number" property="mainTurningNumber" />
+        <result column="galvanic_cell_number" property="galvanicCellNumber" />
+        <result column="note" property="note" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, car_vin, car_number, province, city, county_info, vehicle_customer, battery_number, order_number, battery_type, single_capacity, now_bcu_software_version, original_bcu_software_version, bus_route, bus_company, vehicle_service_time, mixed_model, main_turning_number, galvanic_cell_number, note,del_flag
+    </sql>
+
+    <select id="findByVinName" resultType="com.mgl.bean.carshop.CarNumberDict">
+        select * from car_number_dict where car_vin = #{carVin}
+    </select>
+
+
+    <select id="getCarsInfo" resultType="java.lang.String">
+        select car_vin from car_number_dict
+    </select>
+
+</mapper>

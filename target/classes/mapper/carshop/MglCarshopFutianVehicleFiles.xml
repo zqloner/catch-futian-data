@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mgl.dao.carshop.MglCarshopFutianVehicleFilesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.mgl.bean.carshop.MglCarshopFutianVehicleFiles">
+        <id column="id" property="id" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="county_info" property="countyInfo" />
+        <result column="car_factory" property="carFactory" />
+        <result column="battery_type" property="batteryType" />
+        <result column="capacity" property="capacity" />
+        <result column="battery_system" property="batterySystem" />
+        <result column="parallel_connection" property="parallelConnection" />
+        <result column="series_connection" property="seriesConnection" />
+        <result column="vehicle_system" property="vehicleSystem" />
+        <result column="construction" property="construction" />
+        <result column="vehicle_configuration" property="vehicleConfiguration" />
+        <result column="order_number" property="orderNumber" />
+        <result column="number" property="number" />
+        <result column="run_date" property="runDate" />
+        <result column="warranty_period" property="warrantyPeriod" />
+        <result column="status" property="status" />
+        <result column="duty_engineer" property="dutyEngineer" />
+        <result column="service_station" property="serviceStation" />
+        <result column="note" property="note" />
+        <result column="three_may_kilometers" property="threeMayKilometers" />
+        <result column="two_second_kilometers" property="twoSecondKilometers" />
+        <result column="question" property="question" />
+        <result column="ke_poor" property="kePoor" />
+        <result column="delflag" property="delflag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, province, city, county_info, car_factory, battery_type, capacity, battery_system, parallel_connection, series_connection, vehicle_system, construction, vehicle_configuration, order_number, number, run_date, warranty_period, status, duty_engineer, service_station, note, three_may_kilometers, two_second_kilometers, question, ke_poor, delflag
+    </sql>
+
+</mapper>
