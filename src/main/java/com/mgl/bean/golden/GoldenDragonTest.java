@@ -14,12 +14,12 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author zhangqi
- * @since 2020-07-03
+ * @since 2020-07-05
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class GoldenDragon implements Serializable {
+public class GoldenDragonTest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -135,5 +135,6 @@ public class GoldenDragon implements Serializable {
      * 数据时间
      */
     private String dataCurrentTime;
+
 
 }

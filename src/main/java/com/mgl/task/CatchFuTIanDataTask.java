@@ -15,24 +15,30 @@ import com.mgl.bean.dto.FuTianDetailDto;
 import com.mgl.bean.dto.GoldenDragonDto;
 import com.mgl.bean.dto.VoltageVo;
 import com.mgl.bean.golden.GoldenDragon;
+import com.mgl.bean.golden.GoldenDragonTest;
 import com.mgl.bean.warns.MglCarshopStaticWarning;
 import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.golden.GoldenDragonService;
+import com.mgl.service.golden.GoldenDragonTestService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
 import com.mgl.utils.MyHttpClientUtils;
 import com.mgl.utils.csv.CsvExportUtil;
 import com.mgl.utils.props.BeanAndMap;
+import com.mgl.utils.selfutil.MySelfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.FileOutputStream;
+import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,15 +67,23 @@ public class CatchFuTIanDataTask {
     @Resource
     private GoldenDragonService goldenDragonService;
 
+    @Resource
+    private GoldenDragonTestService dragonTestService;
+
     @Value("${brightease.csvPath}")
     private String csvPath;
 
+    private final static Map<String, String> map = new HashMap<>();
+    private static String token = "";
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
     /**
      * 抓取数据
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 50 * * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -345,7 +359,7 @@ public class CatchFuTIanDataTask {
      * 抓取金龙数据
      * @throws Exception
      */
-//    @Scheduled(cron = "*/15 * * * * ? ")
+    @Scheduled(cron = "*/15 * 16,17,18,19,20,21,22 * * ? ")
     public void getGoldenDragonData() throws Exception {
         String token = MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
         List<String> cars = new ArrayList<>();
@@ -360,29 +374,146 @@ public class CatchFuTIanDataTask {
         List<GoldenDragon> goldenDragons = new ArrayList<>();
         GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
         List<Map<String, String>> mapDatas = goldenDragonDto.getData();
-        GoldenDragon dragon = new GoldenDragon();
         mapDatas.forEach(x->{
+            String time = "";
+            GoldenDragon dragon = new GoldenDragon();
             dragon.setVin(x.get("VehicleID"));
             dragon.setTerminalNumber("DeviceNo");
             dragon.setOnline("Online");
             dragon.setResult(x.get("Result"));
-            dragon.setSoc(x.get("329611"));
-            dragon.setParamsFirst(x.get("329622"));
-            dragon.setParamsSecond(x.get("329623"));
-            dragon.setParamsThird(x.get("329624"));
-            dragon.setParamsFouth(x.get("329625"));
-            dragon.setParamsFiveth(x.get("329626"));
-            dragon.setParamsSix(x.get("329627"));
-            dragon.setParamsSeven(x.get("329628"));
-            dragon.setParamsEight(x.get("329629"));
-            dragon.setParamsTen(x.get("329630"));
-            dragon.setParamsEleven(x.get("329631"));
-            dragon.setParamsTewlve(x.get("329632"));
-            dragon.setParamsThirteen(x.get("329633"));
-            dragon.setParamsFourteen(x.get("329635"));
+            dragon.setTotalVoltage(MySelfUtil.getHandleStr(x.get("329609")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
+            dragon.setTotalCurrent(MySelfUtil.getHandleStr(x.get("329610")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329610")).get("time");
+            dragon.setSoc( MySelfUtil.getHandleStr(x.get("329611")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329611")).get("time");
+
+            dragon.setParamsFirst(MySelfUtil.getHandleStr(x.get("329622")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329622")).get("time");
+
+            dragon.setParamsSecond(MySelfUtil.getHandleStr(x.get("329623")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
+
+            dragon.setParamsThird( MySelfUtil.getHandleStr(x.get("329624")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
+
+            dragon.setParamsFouth( MySelfUtil.getHandleStr(x.get("329625")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329625")).get("time");
+
+            dragon.setParamsFiveth(MySelfUtil.getHandleStr(x.get("329626")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329626")).get("time");
+
+            dragon.setParamsSix(MySelfUtil.getHandleStr(x.get("329627")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329627")).get("time");
+
+            dragon.setParamsSeven(MySelfUtil.getHandleStr(x.get("329628")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329628")).get("time");
+
+            dragon.setParamsEight(MySelfUtil.getHandleStr(x.get("329629")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329629")).get("time");
+
+            dragon.setParamsTen(MySelfUtil.getHandleStr(x.get("329630")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329630")).get("time");
+
+            dragon.setParamsEleven(MySelfUtil.getHandleStr(x.get("329631")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329631")).get("time");
+
+            dragon.setParamsTewlve(MySelfUtil.getHandleStr(x.get("329632")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329632")).get("time");
+
+            dragon.setParamsThirteen(MySelfUtil.getHandleStr(x.get("329633")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329633")).get("time");
+
+            dragon.setParamsFourteen(MySelfUtil.getHandleStr(x.get("329635")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329635")).get("time");
+            dragon.setDataCurrentTime(time);
             dragon.setCeateTime(LocalDateTime.now());
             goldenDragons.add(dragon);
         });
         goldenDragonService.saveBatch(goldenDragons);
+    }
+
+
+    /**
+     * 抓取金龙数据
+     * @throws Exception
+     */
+    @Scheduled(cron = "*/3 * 16,17,18,19,20,21,22 * * ? ")
+    public void getGoldenDragonTestData() throws Exception {
+        String token = MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
+        List<String> cars = new ArrayList<>();
+        cars.add("LA9CB22D3KALA6162");
+        cars.add("LA6C7GAB1JC304865");
+        cars.add("LA6C7GAB2JB201959");
+        cars.add("LA9CB22D0K0LA6058");
+        cars.add("LA6C7K1B7JB201894");
+        String vehicles = StringUtils.join(cars, ",");
+        String finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + token;
+        String datas = MyHttpClientUtils.doGet(finalUrl);
+        List<GoldenDragonTest> goldenDragons = new ArrayList<>();
+        GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
+        List<Map<String, String>> mapDatas = goldenDragonDto.getData();
+        for (String car : cars) {
+
+        }
+
+
+//        mapDatas.forEach(x->{
+//            String time = "";
+//            GoldenDragonTest dragon = new GoldenDragonTest();
+//            dragon.setVin(x.get("VehicleID"));
+//            dragon.setTerminalNumber("DeviceNo");
+//            dragon.setOnline("Online");
+//            dragon.setResult(x.get("Result"));
+//            dragon.setTotalVoltage(MySelfUtil.getHandleStr(x.get("329609")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
+//            dragon.setTotalCurrent(MySelfUtil.getHandleStr(x.get("329610")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329610")).get("time");
+//            dragon.setSoc( MySelfUtil.getHandleStr(x.get("329611")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329611")).get("time");
+//
+//            dragon.setParamsFirst(MySelfUtil.getHandleStr(x.get("329622")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329622")).get("time");
+//
+//            dragon.setParamsSecond(MySelfUtil.getHandleStr(x.get("329623")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
+//
+//            dragon.setParamsThird( MySelfUtil.getHandleStr(x.get("329624")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
+//
+//            dragon.setParamsFouth( MySelfUtil.getHandleStr(x.get("329625")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329625")).get("time");
+//
+//            dragon.setParamsFiveth(MySelfUtil.getHandleStr(x.get("329626")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329626")).get("time");
+//
+//            dragon.setParamsSix(MySelfUtil.getHandleStr(x.get("329627")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329627")).get("time");
+//
+//            dragon.setParamsSeven(MySelfUtil.getHandleStr(x.get("329628")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329628")).get("time");
+//
+//            dragon.setParamsEight(MySelfUtil.getHandleStr(x.get("329629")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329629")).get("time");
+//
+//            dragon.setParamsTen(MySelfUtil.getHandleStr(x.get("329630")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329630")).get("time");
+//
+//            dragon.setParamsEleven(MySelfUtil.getHandleStr(x.get("329631")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329631")).get("time");
+//
+//            dragon.setParamsTewlve(MySelfUtil.getHandleStr(x.get("329632")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329632")).get("time");
+//
+//            dragon.setParamsThirteen(MySelfUtil.getHandleStr(x.get("329633")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329633")).get("time");
+//
+//            dragon.setParamsFourteen(MySelfUtil.getHandleStr(x.get("329635")).get("value"));
+//            time = MySelfUtil.getHandleStr(x.get("329635")).get("time");
+//            dragon.setDataCurrentTime(time);
+//            dragon.setCeateTime(LocalDateTime.now());
+//            goldenDragons.add(dragon);
+//        });
+//        dragonTestService.saveBatch(goldenDragons);
     }
 }

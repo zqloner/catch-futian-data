@@ -26,11 +26,12 @@
         <result column="params_thirteen" property="paramsThirteen" />
         <result column="params_fourteen" property="paramsFourteen" />
         <result column="ceate_time" property="ceateTime" />
+        <result column="data_current_time" property="dataCurrentTime" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, vin, terminal_number, online, result, total_current, total_voltage, soc, params_first, params_second, params_third, params_fouth, params_fiveth, params_six, params_seven, params_eight, params_ten, params_eleven, params_tewlve, params_thirteen, params_fourteen, ceate_time
+        id, vin, terminal_number, online, result, total_current, total_voltage, soc, params_first, params_second, params_third, params_fouth, params_fiveth, params_six, params_seven, params_eight, params_ten, params_eleven, params_tewlve, params_thirteen, params_fourteen, ceate_time,data_current_time
     </sql>
 
 </mapper>

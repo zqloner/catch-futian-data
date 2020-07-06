@@ -21,7 +21,7 @@ public class ReadCSVUtil {
     public static char separator = ',';
 
     public static void main(String[] args) throws Exception {
-        List<String[]> strings = readCSV("D:/LVCB3L4D2GM001991-20200703.csv");
+        List<String[]> strings = readCSV("D://csv//LVCB3L4D0GM001990-20200706.csv");
         System.out.println(strings);
     }
 
