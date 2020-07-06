@@ -1,6 +1,5 @@
 package com.mgl.service.golden;
 
-import com.mgl.bean.golden.GoldenDragonTest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

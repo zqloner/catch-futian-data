@@ -1,6 +1,5 @@
 package com.mgl.dao.golden;
 
-import com.mgl.bean.golden.GoldenDragonTest;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

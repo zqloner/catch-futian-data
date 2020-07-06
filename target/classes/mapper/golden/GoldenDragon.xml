@@ -33,5 +33,8 @@
     <sql id="Base_Column_List">
         id, vin, terminal_number, online, result, total_current, total_voltage, soc, params_first, params_second, params_third, params_fouth, params_fiveth, params_six, params_seven, params_eight, params_ten, params_eleven, params_tewlve, params_thirteen, params_fourteen, ceate_time,data_current_time
     </sql>
+    <select id="getOrderDate" resultType="com.mgl.bean.golden.GoldenDragon">
+        SELECT * from golden_dragon  ORDER BY vin,data_current_time
+    </select>
 
 </mapper>

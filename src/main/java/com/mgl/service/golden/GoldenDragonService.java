@@ -1,7 +1,10 @@
 package com.mgl.service.golden;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.golden.GoldenDragon;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-07-03
  */
 public interface GoldenDragonService extends IService<GoldenDragon> {
-
+    List<GoldenDragon> getOrderDate();
 }
