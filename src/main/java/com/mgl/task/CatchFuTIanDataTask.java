@@ -19,7 +19,6 @@ import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.golden.GoldenDragonService;
-import com.mgl.service.golden.GoldenDragonTestService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
 import com.mgl.utils.MyHttpClientUtils;
 import com.mgl.utils.csv.CsvExportUtil;
@@ -27,6 +26,7 @@ import com.mgl.utils.selfutil.MySelfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -61,9 +61,6 @@ public class CatchFuTIanDataTask {
     @Resource
     private GoldenDragonService goldenDragonService;
 
-    @Resource
-    private GoldenDragonTestService dragonTestService;
-
     @Value("${brightease.csvPath}")
     private String csvPath;
 
@@ -77,7 +74,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 0 * * * ? ")
     public void produceTopic() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -332,13 +329,11 @@ public class CatchFuTIanDataTask {
         List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
         list.forEach(x -> {
             int flag = 0;
-//            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),sevenDaysAgo.toString(),yesterday.toString(),x.getCellNumber());
             LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate starDate = localDate.plusDays(-6);
             List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),starDate.toString(),x.getCurretsDateTime(),x.getCellNumber());
             if (listByCarVinAndDate.size() >= 7) {
                 for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
-//                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i+1).getValue()) {
                     if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i+1).getValue()) {
                         break;
                     }
@@ -384,8 +379,8 @@ public class CatchFuTIanDataTask {
             String time = "";
             GoldenDragon dragon = new GoldenDragon();
             dragon.setVin(x.get("VehicleID"));
-            dragon.setTerminalNumber("DeviceNo");
-            dragon.setOnline("Online");
+            dragon.setTerminalNumber(x.get("DeviceNo"));
+            dragon.setOnline(x.get("Online"));
             dragon.setResult(x.get("Result"));
             dragon.setTotalVoltage(MySelfUtil.getHandleStr(x.get("329609")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
@@ -446,6 +441,35 @@ public class CatchFuTIanDataTask {
                 }
             }
         });
+    }
+
+
+    @Async
+    @Scheduled(cron = "0/5 * * * * ? ")
+    public void startSchedule() {
+        System.out.println("===========1=>");
+        try {
+            for(int i=1;i<=10;i++){
+                System.out.println("=1==>"+i);
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Async
+    @Scheduled(cron = "0/5 * * * * ? ")
+    public void startSchedule2() {
+        for(int i=1;i<=10;i++){
+            System.out.println("=2==>"+i);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

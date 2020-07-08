@@ -143,6 +143,13 @@
             <artifactId>javacsv</artifactId>
             <version>2.0</version>
         </dependency>
+
+        <!--压缩包-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.18</version>
+        </dependency>
     </dependencies>
 
     <build>

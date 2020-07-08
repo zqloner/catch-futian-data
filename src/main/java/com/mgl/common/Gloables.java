@@ -26,4 +26,8 @@ public interface Gloables {
     String GOLD_TOKEN_URL = "http://106.13.23.167:9095/api?v=1.0&ak=12345001";
     String GOLD_DATA_BASE_URL = "http://106.13.23.167:9095/VehicleData/GetByVehicleVIN?vehicles=";
     String GOLD_PARAMS_TYPES = "&types=329609,329610,329611,329622,329623,329624,329625,329626,329627,329628,329629,329630,329631,329632,329633,329635&token=";
+
+
+    String GOLDEN_TITLE = "vin,总电压,总电流,soc,最高电压电池子系统号,最高电压电池单体代号,电池单体电压最高值,最低电压电池子系统号,最低电压电池单体代号,电池单体电压最低值,最高温度子系统号,最高温度探针序号,最高温度值,最低温度子系统号,最低温度探针序号,最低温度值,通用报警标志,时间";
+    String GOLDEN_KEYS = "vin,totalVoltage,totalCurrent,soc,paramsFirst,paramsSecond,paramsThird,paramsFouth,paramsFiveth,paramsSix,paramsSeven,paramsEight,paramsTen,paramsEleven,paramsTewlve,paramsThirteen,paramsFourteen,dataCurrentTime";
 }
