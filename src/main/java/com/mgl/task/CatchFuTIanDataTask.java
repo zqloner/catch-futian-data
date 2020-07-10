@@ -65,7 +65,7 @@ public class CatchFuTIanDataTask {
     private String csvPath;
 
     private final static Map<String, String> map = new HashMap<>();
-    private  String token = "";
+    private String token = "";
 
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
@@ -252,6 +252,179 @@ public class CatchFuTIanDataTask {
 
 
     /**
+     * 抓取数据
+     *
+     * @throws Exception
+     */
+//    @Scheduled(cron = "0 29 13 * * ? ")
+//    public void produceTopicCopy() {
+//        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
+//        List<LocalDate> localDates = new ArrayList<>();
+//        localDates.add(LocalDate.now().plusDays(-7));
+//        localDates.add(LocalDate.now().plusDays(-6));
+//        localDates.add(LocalDate.now().plusDays(-5));
+//        localDates.add(LocalDate.now().plusDays(-4));
+//        localDates.add(LocalDate.now().plusDays(-3));
+//        localDates.add(LocalDate.now().plusDays(-2));
+//        localDates.add(LocalDate.now().plusDays(-1));
+//        int aa = 0;
+//        for (CarNumberDict car : cars) {
+//            aa ++;
+//            try {
+//                List<Map<String, Object>> datas = new ArrayList<>();
+//                String fileName ="flag-"+aa+"-"+ car.getCarVin() + Gloables.CSV_EXTENT;
+//                FileOutputStream os = new FileOutputStream(csvPath + fileName);
+//                for (LocalDate localDate : localDates) {
+//                    Map<String, Object> params = new HashMap();
+//                    params.put(Gloables.API_PARAM_TOKEN, Gloables.API_TOKEN);
+//                    params.put(Gloables.API_PARAM_DATE, localDate);
+//                    params.put(Gloables.API_PARAM_CARID, car.getCarVin());
+//                    String url = Gloables.API_URL;
+//                    String content = MyHttpClientUtils.doGetParam(url, params);
+//                    FuTiamDetailDtoList fuTiamDetailDtoList = null;
+//                    fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
+//                    if (fuTiamDetailDtoList == null) {
+//                        continue;
+//                    }
+//                    List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
+//                    if (data == null || data.size() == 0) {
+//                        continue;
+//                    }
+//                    data.forEach(x -> {
+//                        //                    每条数据的代码
+//                        Map<String, String> codes = x.getCodes();
+//                        //                    导出到csv
+//                        Map<String, Object> map = new HashMap<>();
+//                        Map<String, Object> voltage = new HashMap<>();
+//                        Map<String, Object> temperature = new HashMap<>();
+//                        //                    创建数据
+//                        MglCarshopFutianDataDetail mglCarshopFutianDataDetail = new MglCarshopFutianDataDetail();
+//                        mglCarshopFutianDataDetail.setVin((String) params.get(Gloables.API_PARAM_CARID));
+//                        map.put("vin", (String) params.get(Gloables.API_PARAM_CARID));
+//                        voltage.put("vin", (String) params.get(Gloables.API_PARAM_CARID));
+//                        temperature.put("vin", (String) params.get(Gloables.API_PARAM_CARID));
+//                        mglCarshopFutianDataDetail.setOrderNumber(car.getOrderNumber());
+//                        mglCarshopFutianDataDetail.setCarCurrentTime(x.getTime());
+//                        map.put("car_current_time", x.getTime());
+//                        voltage.put("time", x.getTime());
+//                        temperature.put("time", x.getTime());
+//                        if (!StringUtils.isBlank(codes.get("1030002"))) {
+//                            try {
+//                                mglCarshopFutianDataDetail.setMileages((Double.parseDouble(codes.get("1030002")) / 1000) + "");
+//                                map.put("mileages", (Double.parseDouble(codes.get("1030002")) / 1000) + "");
+//                            } catch (NumberFormatException e) {
+//                                mglCarshopFutianDataDetail.setMileages(codes.get("1030002"));
+//                                map.put("mileages", codes.get("1030002"));
+//                            }
+//                        }
+//                        mglCarshopFutianDataDetail.setSpeed(codes.get("1010027"));
+//                        map.put("speed", codes.get("1010027"));
+//                        mglCarshopFutianDataDetail.setRunModel(codes.get("1140013"));
+//                        mglCarshopFutianDataDetail.setChargeState(codes.get("1110004"));
+//                        //                    SOC
+//                        mglCarshopFutianDataDetail.setSoc(codes.get("1110045"));
+//                        map.put("soc", codes.get("1110045"));
+//                        //                    总电流总电压最高温度最低温度
+//                        mglCarshopFutianDataDetail.setTotalCurrent(codes.get("1110044"));
+//                        map.put("total_current", codes.get("1110044"));
+//                        mglCarshopFutianDataDetail.setTotalVoltage(codes.get("1110043"));
+//                        map.put("total_voltage", codes.get("1110043"));
+//                        mglCarshopFutianDataDetail.setMaxTemperature(codes.get("1110050"));
+//                        map.put("max_temperature", codes.get("1110050"));
+//                        mglCarshopFutianDataDetail.setMinTemperature(codes.get("1110049"));
+//                        map.put("min_temperature", codes.get("1110049"));
+//                        //                    最高最低电压以及编号
+//                        mglCarshopFutianDataDetail.setMaxVoltage(codes.get("1110048"));
+//                        map.put("max_voltage", codes.get("1110048"));
+//                        mglCarshopFutianDataDetail.setMinVoltage(codes.get("1110047"));
+//                        map.put("min_voltage", codes.get("1110047"));
+//                        mglCarshopFutianDataDetail.setMinVoltageCellCode(codes.get("1110070"));
+//                        map.put("min_voltage_cell_code", codes.get("1110070"));
+//                        mglCarshopFutianDataDetail.setMaxVoltageCellCode(codes.get("1110068"));
+//                        map.put("max_voltage_cell_code", codes.get("1110068"));
+//                        mglCarshopFutianDataDetail.setMinVoltageBoxCode(codes.get("1110069"));
+//                        mglCarshopFutianDataDetail.setMaxVoltageBoxCode(codes.get("1110067"));
+//                        mglCarshopFutianDataDetail.setMinTemperatureNeedle(codes.get("1110074"));
+//                        map.put("max_temperature_needle", codes.get("1110074"));
+//                        mglCarshopFutianDataDetail.setMaxTemperatureNeedle(codes.get("1110072"));
+//                        map.put("min_temperature_needle", codes.get("1110072"));
+//                        mglCarshopFutianDataDetail.setMinTemperatrureBoxCode(codes.get("1110073"));
+//                        mglCarshopFutianDataDetail.setMaxTemperatrureBoxCode(codes.get("1110071"));
+//                        //                    获取codes键
+//                        List<String> collect = codes.keySet().stream().filter(y -> y.contains("1110107-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
+//                        List<String> collect1 = codes.keySet().stream().filter(y -> y.contains("1110108-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
+//                        List<Double> list3 = new ArrayList<>();
+//                        List<Double> list4 = new ArrayList<>();
+//                        for (int i = 0; i < collect.size(); i++) {
+//                            try {
+//                                list3.add(Double.valueOf(codes.get(collect.get(i))));
+//                            } catch (NumberFormatException e) {
+//                                list3.clear();
+//                            }
+//                        }
+//                        //                    单体电压
+//                        map.put("single_voltage", StringUtils.join(list3, "|"));
+//                        //                    绝缘电阻
+//                        map.put("insulation_resistance", codes.get("1110085"));
+//                        //                    单体温度
+//                        for (int i = 0; i < collect1.size(); i++) {
+//                            try {
+//                                list4.add(Double.valueOf(codes.get(collect1.get(i))));
+//                            } catch (NumberFormatException e) {
+//                                list4.clear();
+//                            }
+//                            temperature.put("T" + (i + 1), codes.get(collect1.get(i)));
+//                        }
+//                        map.put("singel_temperature", StringUtils.join(list4, "|"));
+//                        mglCarshopFutianDataDetail.setBatteryVersionInformation(codes.get("1130195"));
+//                        mglCarshopFutianDataDetail.setTotalNumberOfSingleBatteries(codes.get("1110076-1"));
+//                        mglCarshopFutianDataDetail.setSocLowAlarm(codes.get("1110065"));
+//                        map.put("soc_low_alarm", codes.get("1110065"));
+//                        map.put("battery_high_temperature_alarm", codes.get("1110064"));
+//                        map.put("temperature_difference_alarm", codes.get("1110061"));
+//                        map.put("equip_overvoltage_alarm", codes.get("1110054"));
+//                        map.put("equipment_undervoltage_alarm", codes.get("1110053"));
+//                        map.put("system_mismatch_alarm", codes.get("1110052"));
+//                        map.put("maximum_alarm_level", codes.get("1110046"));
+//                        map.put("type_overcharge_alarm", codes.get("1140017"));
+//                        map.put("soc_jump_alarm", codes.get("1140019"));
+//                        map.put("insulation_alarm", codes.get("1110087"));
+//                        map.put("dc_status_alarm", codes.get("1130237"));
+//                        map.put("high_pressure_interlock_alarm", codes.get("1110157"));
+//                        map.put("poor_battery_consistency_alarm", codes.get("1110132"));
+//                        map.put("single_battery_overvoltage_alarm", codes.get("1130180"));
+//                        map.put("low_voltage_alarm_for_single_battery", codes.get("1130181"));
+//                        map.put("soc_high_alarm", codes.get("1130183"));
+//                        mglCarshopFutianDataDetail.setBatteryHighTemperatureAlarm(codes.get("1110064"));
+//                        mglCarshopFutianDataDetail.setTemperatureDifferenceAlarm(codes.get("1110061"));
+//                        mglCarshopFutianDataDetail.setEquipOvervoltageAlarm(codes.get("1110054"));
+//                        mglCarshopFutianDataDetail.setEquipmentUndervoltageAlarm(codes.get("1110053"));
+//                        mglCarshopFutianDataDetail.setSystemMismatchAlarm(codes.get("1110052"));
+//                        mglCarshopFutianDataDetail.setMaximumAlarmLevel(codes.get("1110046"));
+//                        mglCarshopFutianDataDetail.setTypeOverchargeAlarm(codes.get("1140017"));
+//                        mglCarshopFutianDataDetail.setSocJumpAlarm(codes.get("1140019"));
+//                        mglCarshopFutianDataDetail.setInsulationAlarm(codes.get("1110087"));
+//                        mglCarshopFutianDataDetail.setDcStatusAlarm(codes.get("1130237"));
+//                        mglCarshopFutianDataDetail.setDcTemperatrureAlarm(codes.get("1130238"));
+//                        mglCarshopFutianDataDetail.setHighPressureInterlockAlarm(codes.get("1110157"));
+//                        mglCarshopFutianDataDetail.setPoorBatteryConsistencyAlarm(codes.get("1110132"));
+//                        mglCarshopFutianDataDetail.setSingleBatteryOvervoltageAlarm(codes.get("1130180"));
+//                        mglCarshopFutianDataDetail.setLowVoltageAlarmForSingleBattery(codes.get("1130181"));
+//                        mglCarshopFutianDataDetail.setSocHighAlarm(codes.get("1130183"));
+//                        //                    这是导出csv
+//                        datas.add(map);
+//                    });
+//                }
+//                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, os);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                System.out.println("异常数据"+car.getCarVin());
+//            }
+//        }
+//    }
+
+
+    /**
      * 算法一
      *
      * @throws Exception
@@ -264,13 +437,13 @@ public class CatchFuTIanDataTask {
         String start = yesterday + " 00:00:00";
         String end = yesterday + " 23:59:59";
         cars.forEach(x -> {
-            List<MglCarshopFutianDataDetail> detailsByVin = mglCarshopFutianDataDetailService.findDetailsByVin(x.getCarVin(),start,end);
+            List<MglCarshopFutianDataDetail> detailsByVin = mglCarshopFutianDataDetailService.findDetailsByVin(x.getCarVin(), start, end);
             List<List<VoltageVo>> lists = new ArrayList<>();
             for (int i = 0; i < detailsByVin.size(); i++) {
                 List<VoltageVo> bills = JSONArray.parseArray(detailsByVin.get(i).getSingleCellVoltage(), VoltageVo.class);
                 Double d = bills.stream().collect(Collectors.averagingDouble(VoltageVo::getValue));
                 List<VoltageVo> collect = bills.stream().collect(Collectors.toList());
-                collect.forEach(n->n.setValue(d-n.getValue()));
+                collect.forEach(n -> n.setValue(d - n.getValue()));
                 lists.add(collect);
             }
             List<MglCarshopStaticWarning> mglCarshopStaticWarnings = new ArrayList<>();
@@ -284,7 +457,7 @@ public class CatchFuTIanDataTask {
                     for (int j = 0; j < lists.size(); j++) {
                         if (lists.get(j).size() == length) {
                             list.add(lists.get(j).get(i).getValue());
-                        }else {
+                        } else {
                             continue;
                         }
                     }
@@ -315,7 +488,6 @@ public class CatchFuTIanDataTask {
     }
 
 
-
     /**
      * 扫描满足二级预警的一级预警将其修改为二级预警
      *
@@ -331,10 +503,10 @@ public class CatchFuTIanDataTask {
             int flag = 0;
             LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate starDate = localDate.plusDays(-6);
-            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(),starDate.toString(),x.getCurretsDateTime(),x.getCellNumber());
+            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(), starDate.toString(), x.getCurretsDateTime(), x.getCellNumber());
             if (listByCarVinAndDate.size() >= 7) {
                 for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
-                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i+1).getValue()) {
+                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i + 1).getValue()) {
                         break;
                     }
                     flag++;
@@ -349,6 +521,7 @@ public class CatchFuTIanDataTask {
 
     /**
      * 抓取金龙数据
+     *
      * @throws Exception
      */
 //    @Scheduled(cron = "* * 16,17,18,19,20,21,22 * * ? ")
@@ -367,15 +540,15 @@ public class CatchFuTIanDataTask {
         String vehicles = StringUtils.join(cars, ",");
         String finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
         String datas = MyHttpClientUtils.doGet(finalUrl);
-        if (datas.length()<30 && datas.contains("unauthorized")) {
-            String token =  MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
+        if (datas.length() < 30 && datas.contains("unauthorized")) {
+            String token = MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
             map.put("token", token);
             finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
             datas = MyHttpClientUtils.doGet(finalUrl);
         }
         GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
         List<Map<String, String>> mapDatas = goldenDragonDto.getData();
-        mapDatas.forEach(x->{
+        mapDatas.forEach(x -> {
             String time = "";
             GoldenDragon dragon = new GoldenDragon();
             dragon.setVin(x.get("VehicleID"));
@@ -386,7 +559,7 @@ public class CatchFuTIanDataTask {
             time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
             dragon.setTotalCurrent(MySelfUtil.getHandleStr(x.get("329610")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329610")).get("time");
-            dragon.setSoc( MySelfUtil.getHandleStr(x.get("329611")).get("value"));
+            dragon.setSoc(MySelfUtil.getHandleStr(x.get("329611")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329611")).get("time");
 
             dragon.setParamsFirst(MySelfUtil.getHandleStr(x.get("329622")).get("value"));
@@ -395,10 +568,10 @@ public class CatchFuTIanDataTask {
             dragon.setParamsSecond(MySelfUtil.getHandleStr(x.get("329623")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
 
-            dragon.setParamsThird( MySelfUtil.getHandleStr(x.get("329624")).get("value"));
+            dragon.setParamsThird(MySelfUtil.getHandleStr(x.get("329624")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
 
-            dragon.setParamsFouth( MySelfUtil.getHandleStr(x.get("329625")).get("value"));
+            dragon.setParamsFouth(MySelfUtil.getHandleStr(x.get("329625")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329625")).get("time");
 
             dragon.setParamsFiveth(MySelfUtil.getHandleStr(x.get("329626")).get("value"));
@@ -444,32 +617,32 @@ public class CatchFuTIanDataTask {
     }
 
 
-    @Async
-    @Scheduled(cron = "0/5 * * * * ? ")
-    public void startSchedule() {
-        System.out.println("===========1=>");
-        try {
-            for(int i=1;i<=10;i++){
-                System.out.println("=1==>"+i);
-                Thread.sleep(1000);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Async
-    @Scheduled(cron = "0/5 * * * * ? ")
-    public void startSchedule2() {
-        for(int i=1;i<=10;i++){
-            System.out.println("=2==>"+i);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    @Async
+//    @Scheduled(cron = "0/5 * * * * ? ")
+//    public void startSchedule() {
+//        System.out.println("===========1=>");
+//        try {
+//            for(int i=1;i<=10;i++){
+//                System.out.println("=1==>"+i);
+//                Thread.sleep(1000);
+//            }
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//
+//    @Async
+//    @Scheduled(cron = "0/5 * * * * ? ")
+//    public void startSchedule2() {
+//        for(int i=1;i<=10;i++){
+//            System.out.println("=2==>"+i);
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
 }

@@ -2,6 +2,7 @@ package com.mgl.utils;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
+import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -101,6 +102,9 @@ public class MyHttpClientUtils {
         });
         String substring = builder.substring(0, builder.lastIndexOf("&"));
         HttpGet httpGet = new HttpGet(substring);
+//        生成csv的时候会报.ConnectionClosedException: Premature end of chunk coded message body: closing chunk expected
+//            自己尝试加的
+            httpGet.setProtocolVersion(HttpVersion.HTTP_1_0);
             // 执行请求
             response = httpclient.execute(httpGet);
             System.out.println(response.getStatusLine());
