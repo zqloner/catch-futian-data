@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.mgl.utils.httpclient.HttpClientResult;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -29,7 +30,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 
-public class HttpClientUtil {
+public class HttpClientUtils {
 
 	private static final String ENCODING = "UTF-8";
 	private static final int CONNECT_TIMEOUT = 6000;

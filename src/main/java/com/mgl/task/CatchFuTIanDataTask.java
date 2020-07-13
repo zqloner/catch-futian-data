@@ -20,13 +20,12 @@ import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
-import com.mgl.utils.MyHttpClientUtils;
 import com.mgl.utils.csv.CsvExportUtil;
+import com.mgl.utils.httpclient.HttpClientUtil;
 import com.mgl.utils.selfutil.MySelfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -80,18 +79,18 @@ public class CatchFuTIanDataTask {
         LocalDate yesterday = today.plusDays(-1);
         String url = Gloables.API_URL;
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
-        Map<String, Object> params = new HashMap();
+        Map<String, String> params = new HashMap();
         params.put(Gloables.API_PARAM_TOKEN,Gloables.API_TOKEN );
-        params.put(Gloables.API_PARAM_DATE, yesterday);
+        params.put(Gloables.API_PARAM_DATE, yesterday.toString());
         TimeInterval timer = DateUtil.timer();
         for (CarNumberDict car : cars) {
             try {
                 params.put(Gloables.API_PARAM_CARID, car.getCarVin());
                 timer.intervalRestart();
-                String content = MyHttpClientUtils.doGetParam(url, params);
+                String content = HttpClientUtil.doGet(url, params);
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>抓取花费时间: " + timer.intervalSecond() + "s");
                 timer.intervalRestart();
-                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setTextContent(content).setRealDate(yesterday).setCreateDate(today));
+                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
                 System.out.println(car.getCarVin() + "====" + yesterday + "日====>存库花费时间: " + timer.intervalSecond() + "s");
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
@@ -252,13 +251,15 @@ public class CatchFuTIanDataTask {
 
 
     /**
-     * 抓取数据
+     * 抓取7天数据
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 29 13 * * ? ")
+//    @Scheduled(cron = "0 15 14 13 * ? ")
 //    public void produceTopicCopy() {
 //        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
+////        记录异常数据
+//        List<String> list = new ArrayList<>();
 //        List<LocalDate> localDates = new ArrayList<>();
 //        localDates.add(LocalDate.now().plusDays(-7));
 //        localDates.add(LocalDate.now().plusDays(-6));
@@ -267,21 +268,26 @@ public class CatchFuTIanDataTask {
 //        localDates.add(LocalDate.now().plusDays(-3));
 //        localDates.add(LocalDate.now().plusDays(-2));
 //        localDates.add(LocalDate.now().plusDays(-1));
-//        int aa = 0;
+//        int flag = 100000;
 //        for (CarNumberDict car : cars) {
-//            aa ++;
+//            flag ++;
 //            try {
 //                List<Map<String, Object>> datas = new ArrayList<>();
-//                String fileName ="flag-"+aa+"-"+ car.getCarVin() + Gloables.CSV_EXTENT;
+//                String fileName =flag+"-"+ car.getCarVin() + Gloables.CSV_EXTENT;
 //                FileOutputStream os = new FileOutputStream(csvPath + fileName);
 //                for (LocalDate localDate : localDates) {
-//                    Map<String, Object> params = new HashMap();
+//                    Map<String, String> params = new HashMap();
 //                    params.put(Gloables.API_PARAM_TOKEN, Gloables.API_TOKEN);
-//                    params.put(Gloables.API_PARAM_DATE, localDate);
+//                    params.put(Gloables.API_PARAM_DATE, localDate.toString());
 //                    params.put(Gloables.API_PARAM_CARID, car.getCarVin());
 //                    String url = Gloables.API_URL;
-//                    String content = MyHttpClientUtils.doGetParam(url, params);
+////                    String content = MyHttpClientUtils.doGetParam(url, params);
+//                    String content = HttpClientUtil.doGet(url, params);
+//                    while (content.contains("http")) {
+//                        content = HttpClientUtil.doGet(url, params);
+//                    }
 //                    FuTiamDetailDtoList fuTiamDetailDtoList = null;
+////                    fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
 //                    fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
 //                    if (fuTiamDetailDtoList == null) {
 //                        continue;
@@ -429,63 +435,63 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 20 * * ? ")
-    public void firstArithmetic() throws Exception {
-        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.plusDays(-1);
-        String start = yesterday + " 00:00:00";
-        String end = yesterday + " 23:59:59";
-        cars.forEach(x -> {
-            List<MglCarshopFutianDataDetail> detailsByVin = mglCarshopFutianDataDetailService.findDetailsByVin(x.getCarVin(), start, end);
-            List<List<VoltageVo>> lists = new ArrayList<>();
-            for (int i = 0; i < detailsByVin.size(); i++) {
-                List<VoltageVo> bills = JSONArray.parseArray(detailsByVin.get(i).getSingleCellVoltage(), VoltageVo.class);
-                Double d = bills.stream().collect(Collectors.averagingDouble(VoltageVo::getValue));
-                List<VoltageVo> collect = bills.stream().collect(Collectors.toList());
-                collect.forEach(n -> n.setValue(d - n.getValue()));
-                lists.add(collect);
-            }
-            List<MglCarshopStaticWarning> mglCarshopStaticWarnings = new ArrayList<>();
-            if (lists.size() > 0) {
-                int length = lists.get(0).size();
-                for (int i = 0; i < length; i++) {
-                    MglCarshopStaticWarning mglCarshopStaticWarning = new MglCarshopStaticWarning();
-                    mglCarshopStaticWarning.setDelFlag(0);
-                    mglCarshopStaticWarning.setCellNumber(lists.get(0).get(i).getKey());
-                    List<Double> list = new ArrayList<>();
-                    for (int j = 0; j < lists.size(); j++) {
-                        if (lists.get(j).size() == length) {
-                            list.add(lists.get(j).get(i).getValue());
-                        } else {
-                            continue;
-                        }
-                    }
-                    List<Double> collect = list.stream().filter(m -> m > 0).collect(Collectors.toList());
-                    Double asDouble = null;
-                    if (collect.size() > 0) {
-                        asDouble = collect.stream().mapToDouble(Double::doubleValue).average().getAsDouble();
-                    } else {
-                        continue;
-                    }
-//                    mglCarshopStaticWarning.setValue(asDouble * 1000);
-                    mglCarshopStaticWarning.setValue((double) Math.round(asDouble * 100000) / 100);
-
-                    mglCarshopStaticWarning.setVin(x.getCarVin());
-                    mglCarshopStaticWarning.setCurretsDateTime(yesterday.toString());
-                    mglCarshopStaticWarning.setCurretsTimeSeconds(yesterday.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli());
-//                if (d > 40) {
-                    if (asDouble * 1000 > Gloables.WORINING_VALUE) {
-                        mglCarshopStaticWarning.setType(1);
-                        mglCarshopStaticWarnings.add(mglCarshopStaticWarning);
-                    } else {
-                        mglCarshopStaticWarning.setType(0);
-                    }
-                }
-            }
-            mglCarshopStaticWarningService.saveBatch(mglCarshopStaticWarnings);
-        });
-    }
+//    @Scheduled(cron = "0 0 20 * * ? ")
+//    public void firstArithmetic() throws Exception {
+//        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
+//        LocalDate today = LocalDate.now();
+//        LocalDate yesterday = today.plusDays(-1);
+//        String start = yesterday + " 00:00:00";
+//        String end = yesterday + " 23:59:59";
+//        cars.forEach(x -> {
+//            List<MglCarshopFutianDataDetail> detailsByVin = mglCarshopFutianDataDetailService.findDetailsByVin(x.getCarVin(), start, end);
+//            List<List<VoltageVo>> lists = new ArrayList<>();
+//            for (int i = 0; i < detailsByVin.size(); i++) {
+//                List<VoltageVo> bills = JSONArray.parseArray(detailsByVin.get(i).getSingleCellVoltage(), VoltageVo.class);
+//                Double d = bills.stream().collect(Collectors.averagingDouble(VoltageVo::getValue));
+//                List<VoltageVo> collect = bills.stream().collect(Collectors.toList());
+//                collect.forEach(n -> n.setValue(d - n.getValue()));
+//                lists.add(collect);
+//            }
+//            List<MglCarshopStaticWarning> mglCarshopStaticWarnings = new ArrayList<>();
+//            if (lists.size() > 0) {
+//                int length = lists.get(0).size();
+//                for (int i = 0; i < length; i++) {
+//                    MglCarshopStaticWarning mglCarshopStaticWarning = new MglCarshopStaticWarning();
+//                    mglCarshopStaticWarning.setDelFlag(0);
+//                    mglCarshopStaticWarning.setCellNumber(lists.get(0).get(i).getKey());
+//                    List<Double> list = new ArrayList<>();
+//                    for (int j = 0; j < lists.size(); j++) {
+//                        if (lists.get(j).size() == length) {
+//                            list.add(lists.get(j).get(i).getValue());
+//                        } else {
+//                            continue;
+//                        }
+//                    }
+//                    List<Double> collect = list.stream().filter(m -> m > 0).collect(Collectors.toList());
+//                    Double asDouble = null;
+//                    if (collect.size() > 0) {
+//                        asDouble = collect.stream().mapToDouble(Double::doubleValue).average().getAsDouble();
+//                    } else {
+//                        continue;
+//                    }
+////                    mglCarshopStaticWarning.setValue(asDouble * 1000);
+//                    mglCarshopStaticWarning.setValue((double) Math.round(asDouble * 100000) / 100);
+//
+//                    mglCarshopStaticWarning.setVin(x.getCarVin());
+//                    mglCarshopStaticWarning.setCurretsDateTime(yesterday.toString());
+//                    mglCarshopStaticWarning.setCurretsTimeSeconds(yesterday.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli());
+////                if (d > 40) {
+//                    if (asDouble * 1000 > Gloables.WORINING_VALUE) {
+//                        mglCarshopStaticWarning.setType(1);
+//                        mglCarshopStaticWarnings.add(mglCarshopStaticWarning);
+//                    } else {
+//                        mglCarshopStaticWarning.setType(0);
+//                    }
+//                }
+//            }
+//            mglCarshopStaticWarningService.saveBatch(mglCarshopStaticWarnings);
+//        });
+//    }
 
 
     /**
@@ -493,31 +499,31 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 23 * * ? ")
-    public void changeLevel() throws Exception {
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.plusDays(-1);
-        LocalDate sevenDaysAgo = yesterday.plusDays(-8);
-        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
-        list.forEach(x -> {
-            int flag = 0;
-            LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDate starDate = localDate.plusDays(-6);
-            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(), starDate.toString(), x.getCurretsDateTime(), x.getCellNumber());
-            if (listByCarVinAndDate.size() >= 7) {
-                for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
-                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i + 1).getValue()) {
-                        break;
-                    }
-                    flag++;
-                }
-            }
-            if (flag == 6) {
-                MglCarshopStaticWarning mglCarshopStaticWarning = mglCarshopStaticWarningService.getById(x.getId()).setType(2);
-                mglCarshopStaticWarningService.saveOrUpdate(mglCarshopStaticWarning);
-            }
-        });
-    }
+//    @Scheduled(cron = "0 0 23 * * ? ")
+//    public void changeLevel() throws Exception {
+//        LocalDate today = LocalDate.now();
+//        LocalDate yesterday = today.plusDays(-1);
+//        LocalDate sevenDaysAgo = yesterday.plusDays(-8);
+//        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
+//        list.forEach(x -> {
+//            int flag = 0;
+//            LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//            LocalDate starDate = localDate.plusDays(-6);
+//            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(), starDate.toString(), x.getCurretsDateTime(), x.getCellNumber());
+//            if (listByCarVinAndDate.size() >= 7) {
+//                for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
+//                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i + 1).getValue()) {
+//                        break;
+//                    }
+//                    flag++;
+//                }
+//            }
+//            if (flag == 6) {
+//                MglCarshopStaticWarning mglCarshopStaticWarning = mglCarshopStaticWarningService.getById(x.getId()).setType(2);
+//                mglCarshopStaticWarningService.saveOrUpdate(mglCarshopStaticWarning);
+//            }
+//        });
+//    }
 
     /**
      * 抓取金龙数据
@@ -539,12 +545,12 @@ public class CatchFuTIanDataTask {
     private void totalGetDataByUrl(List<String> cars) {
         String vehicles = StringUtils.join(cars, ",");
         String finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
-        String datas = MyHttpClientUtils.doGet(finalUrl);
+        String datas = HttpClientUtil.doGet(finalUrl,null);
         if (datas.length() < 30 && datas.contains("unauthorized")) {
-            String token = MyHttpClientUtils.doGet(Gloables.GOLD_TOKEN_URL);
+            String token = HttpClientUtil.doGet(Gloables.GOLD_TOKEN_URL,null);
             map.put("token", token);
             finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
-            datas = MyHttpClientUtils.doGet(finalUrl);
+            datas = HttpClientUtil.doGet(finalUrl,null);
         }
         GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
         List<Map<String, String>> mapDatas = goldenDragonDto.getData();
