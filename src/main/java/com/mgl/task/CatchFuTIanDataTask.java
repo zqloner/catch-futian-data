@@ -1,19 +1,13 @@
 package com.mgl.task;
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.TimeInterval;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.carshop.CarNumberDict;
-import com.mgl.bean.carshop.MglCarshopFutianDataDetail;
 import com.mgl.bean.carshop.MglCarshopTianfuData;
 import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
 import com.mgl.bean.dto.GoldenDragonDto;
-import com.mgl.bean.dto.VoltageVo;
 import com.mgl.bean.golden.GoldenDragon;
-import com.mgl.bean.warns.MglCarshopStaticWarning;
 import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
@@ -35,14 +29,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -77,8 +71,6 @@ public class CatchFuTIanDataTask {
     private final static Map<String, String> map = new HashMap<>();
     private String token = "";
 
-    @Autowired
-    private ThreadPoolTaskExecutor taskExecutor;
 
     /**
      * 抓取数据   导出到csv和存详情
