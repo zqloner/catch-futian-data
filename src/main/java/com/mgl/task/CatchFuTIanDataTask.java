@@ -314,7 +314,7 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                String fileName =car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID) + "-" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + Gloables.CSV_EXTENT;
+                String fileName =car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
                 if (data == null || data.size() == 0) {
