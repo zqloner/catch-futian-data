@@ -168,7 +168,68 @@ public class CompressUtils {
             }
         }
         // 目录此时为空，可以删除
-//        return dir.delete();
-        return true;
+        return dir.delete();
+    }
+
+
+    /**
+     *
+     * 删除指定目录及其包含的所有内容
+     *
+     *
+     * */
+
+    public static void deleteDirectory(File dir)
+
+            throws IOException {
+
+        if (!dir.exists()) {
+
+            throw new IllegalArgumentException("目录：" + dir +
+
+                    "不存在");
+
+        }
+
+        if (!dir.isDirectory()) {
+
+            throw new IllegalArgumentException(dir + "不是目录");
+
+        }
+
+        File[] subs = dir.listFiles();
+
+        if (subs != null && subs.length > 0) {
+
+            for (File sub : subs) {
+
+                if (sub.isDirectory()) {
+
+                    deleteDirectory(sub);
+
+                } else {
+
+                    System.out.println(sub);
+
+                    if (!sub.delete()) {
+
+                        throw new IOException("无法删除文件：" + sub);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        System.out.println(dir);
+
+        if (!dir.delete()) {
+
+            throw new IOException("无法删除目录：" + dir);
+
+        }
+
     }
 }

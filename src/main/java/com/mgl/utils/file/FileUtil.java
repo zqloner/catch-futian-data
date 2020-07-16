@@ -1,9 +1,6 @@
 package com.mgl.utils.file;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -399,13 +396,63 @@ public class FileUtil {
                     copyDirectory(sub, new File(destDir,
 
                             sub.getName()));
-
                 }
-
             }
-
         }
+    }
 
+    /**
+     * 判断目录是否存在
+     *
+     * @param strDir
+     * @return
+     */
+    public static boolean existsDirectory(String strDir) {
+        File file = new File(strDir);
+        return file.exists() && file.isDirectory();
+    }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param strDir
+     * @return
+     */
+    public static boolean existsFile(String strDir) {
+        File file = new File(strDir);
+        return file.exists();
+    }
+
+    /**
+     * 强制创建目录
+     *
+     * @param strDir
+     * @return
+     */
+    public static boolean forceDirectory(String strDir) {
+        File file = new File(strDir);
+        file.mkdirs();
+        return existsDirectory(strDir);
+    }
+
+    /**
+     * 得到文件的大小
+     *
+     * @param fileName
+     * @return
+     */
+    public static int getFileSize(String fileName) {
+
+        File file = new File(fileName);
+        FileInputStream fis = null;
+        int size = 0;
+        try {
+            fis = new FileInputStream(file);
+            size = fis.available();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return size;
     }
 
 }

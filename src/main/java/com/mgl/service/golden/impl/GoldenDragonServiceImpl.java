@@ -25,7 +25,7 @@ public class GoldenDragonServiceImpl extends ServiceImpl<GoldenDragonMapper, Gol
     private GoldenDragonMapper dragonMapper;
 
     @Override
-    public List<GoldenDragon> getOrderDate() {
-        return dragonMapper.getOrderDate();
+    public List<GoldenDragon> getOrderDate(String vin) {
+        return dragonMapper.getOrderDate(vin);
     }
 }

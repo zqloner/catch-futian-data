@@ -15,5 +15,5 @@ import java.util.List;
  * @since 2020-07-03
  */
 public interface GoldenDragonService extends IService<GoldenDragon> {
-    List<GoldenDragon> getOrderDate();
+    List<GoldenDragon> getOrderDate(String vin);
 }

@@ -1,6 +1,7 @@
 #上传路径配置
 brightease:
-  csvPath: d:/test/
+  csvBeiyouPath: d:/server110/test/
+  csvNewPath: d:/server110/mytest/
   filePath: d:/
   tempUpLoadPath: d:/
 

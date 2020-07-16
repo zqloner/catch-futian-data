@@ -67,9 +67,10 @@ public class HttpClientUtil {
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {// 返回200，请求成功
                 // 结果返回
                 result = EntityUtils.toString(response.getEntity());
+                logger.info("请求成功!");
 //                logger.info("请求成功！，返回数据：" + result);
             } else {
-                logger.info("请求失败！");
+                logger.info("请求失败!");
             }
         } catch (Exception e) {
             logger.info("请求失败!");

@@ -1,29 +1,26 @@
 package com.mgl.controller.golden;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.mgl.bean.carshop.CarNumberDict;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.common.Gloables;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.utils.compress.CompressUtils;
 import com.mgl.utils.csv.CsvExportUtil;
-import com.mgl.utils.excel.ExcelUtils;
 import com.mgl.utils.file.FileUtil;
 import com.mgl.utils.props.BeanAndMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +36,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/goldenDragon")
 public class GoldenDragonController {
+    private static final Logger logger = LoggerFactory.getLogger(GoldenDragonController.class);
 
     @Resource
     private GoldenDragonService goldenDragonService;
@@ -55,26 +53,42 @@ public class GoldenDragonController {
     public void exportExcel(HttpServletResponse response, HttpServletRequest request) {
         this.response = response;
         try {
+            List<String> cars = new ArrayList<>();
+            cars.add("LA9CB22D3KALA6162");
+            cars.add("LA6C7GAB1JC304865");
+            cars.add("LA6C7GAB2JB201959");
+            cars.add("LA9CB22D0K0LA6058");
+            cars.add("LA6C7K1B7JB201894");
+//            创建文件夹
             File file = new File("D:\\GoldenDragon");
             if (!file.exists()) {
                 file.mkdir();
             }
-            List<GoldenDragon> list = goldenDragonService.getOrderDate();
-            List<Map<String, Object>> maps = new ArrayList<>();
-            list.forEach(x -> {
-                maps.add(BeanAndMap.beanToMap(x));
-            });
-            for (int i = 0;i < 2; i++) {
-                FileOutputStream os = new FileOutputStream("D:\\GoldenDragon\\aaa"+i+".csv");
-                CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
+
+            Long flag  = 0L;
+            for (String car : cars) {
+                List<GoldenDragon> list = goldenDragonService.getOrderDate(car);
+                List<Map<String, Object>> maps = new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(list)) {
+                    flag ++;
+                }
+                list.forEach(x -> {
+                    maps.add(BeanAndMap.beanToMap(x));
+                    try {
+                        FileOutputStream os = new FileOutputStream("D:\\GoldenDragon\\" + car + ".csv");
+                        CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
+                    } catch (Exception e) {
+                        logger.info("抛出异常啦");
+                    }
+                });
             }
             String[] extention = new String[]{".csv"};
             List<File> files = FileUtil.listFile(new File("D:\\GoldenDragon"), extention, true);
             System.out.println(files);
-            if (files.size()==2) {
-                Thread.sleep(1000);
-                CompressUtils.zip("D:\\GoldenDragon",response.getOutputStream());
-                CompressUtils.deleteDir(new File("D:\\GoldenDragon"));
+            if (flag==files.size()) {
+                Thread.sleep(2000);
+                CompressUtils.zip("D:\\GoldenDragon", response.getOutputStream());
+                CompressUtils.deleteDirectory(new File("D:\\GoldenDragon"));
             }
         } catch (Exception e) {
             e.printStackTrace();

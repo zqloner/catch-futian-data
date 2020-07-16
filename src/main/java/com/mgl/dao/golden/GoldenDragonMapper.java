@@ -17,5 +17,5 @@ import java.util.List;
 @Mapper
 public interface GoldenDragonMapper extends BaseMapper<GoldenDragon> {
 
-    List<GoldenDragon> getOrderDate();
+    List<GoldenDragon> getOrderDate(String vin);
 }
