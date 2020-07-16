@@ -288,8 +288,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 0 0 * * ? ")
-    @Scheduled(cron = "0 20 14 * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
@@ -310,6 +309,7 @@ public class CatchFuTIanDataTask {
                     logger.info("重新获取数据中......");
                     content = HttpClientUtil.doGet(url, params);
                 }
+//                存原始数据
                 mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
