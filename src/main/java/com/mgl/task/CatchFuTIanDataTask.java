@@ -18,6 +18,7 @@ import com.mgl.utils.csv.CsvExportUtil;
 import com.mgl.utils.file.FileUtil;
 import com.mgl.utils.httpclient.HttpClientUtil;
 import com.mgl.utils.selfutil.MySelfUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,10 +307,10 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                String fileName =car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
+                String fileName =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
-                if (data == null || data.size() == 0) {
+                if (CollectionUtils.isEmpty(data)) {
                     continue;
                 }
                 FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName);
