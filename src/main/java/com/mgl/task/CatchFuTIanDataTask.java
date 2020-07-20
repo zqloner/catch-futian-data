@@ -310,9 +310,9 @@ public class CatchFuTIanDataTask {
                 String fileName =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
-                if (CollectionUtils.isEmpty(data)) {
-                    continue;
-                }
+//                if (CollectionUtils.isEmpty(data)) {
+//                    continue;
+//                }
                 FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName);
                 FileOutputStream newOs = new FileOutputStream(dir +"/"+ fileName);
                 data.forEach(x -> {
