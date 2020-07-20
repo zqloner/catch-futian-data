@@ -307,13 +307,14 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
+                String fileName1 =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+"-"+yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"))+ Gloables.CSV_EXTENT;
                 String fileName =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
 //                if (CollectionUtils.isEmpty(data)) {
 //                    continue;
 //                }
-                FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName);
+                FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName1);
                 FileOutputStream newOs = new FileOutputStream(dir +"/"+ fileName);
                 data.forEach(x -> {
 //                    每条数据的代码
