@@ -41,8 +41,6 @@ public class GoldenDragonController {
     @Resource
     private GoldenDragonService goldenDragonService;
 
-    private HttpServletResponse response;
-
     /**
      * 导出
      *
@@ -51,7 +49,6 @@ public class GoldenDragonController {
     @RequestMapping("/exportCsv")
     @ResponseBody
     public void exportExcel(HttpServletResponse response, HttpServletRequest request) {
-        this.response = response;
         try {
             List<String> cars = new ArrayList<>();
             cars.add("LA9CB22D3KALA6162");
