@@ -4,6 +4,8 @@ brightease:
   csvNewPath: d:/server110/mytest/
   filePath: d:/
   tempUpLoadPath: d:/
+  goldenDragonCsvPath: d:/GoldenDragon/
+  ftpZipPath: D:/server110/csv-zip
 
 #mysql
 spring:
@@ -27,11 +29,11 @@ spring:
 
 #ftp
 ftp:
-  host: 192.168.0.110
-  port: 22
-  username: root
-  password: 1qazXSW@
-  defatultport: 22
-  serverpath: carsfile
+  host: ftp.mgldl.com.cn
+  port: 21
+  username: mgl
+  password: MglAa110
+  defatultport: 21
+  serverpath: csvfile
   req:
-    url: 192.168.0.110
+    url: ftp.mgldl.com.cn

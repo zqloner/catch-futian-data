@@ -146,7 +146,7 @@ public class CompressUtils {
     }
 
     //删除指定文件
-    private static void doDeleteEmptyDir(String dir) {
+    public static void doDeleteEmptyDir(String dir) {
         boolean success = (new File(dir)).delete();
         if (success) {
             System.out.println("Successfully deleted empty directory: " + dir);

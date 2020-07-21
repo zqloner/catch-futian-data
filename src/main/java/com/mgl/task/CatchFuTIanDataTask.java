@@ -14,23 +14,24 @@ import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
+import com.mgl.utils.compress.CompressUtils;
 import com.mgl.utils.csv.CsvExportUtil;
 import com.mgl.utils.file.FileUtil;
+import com.mgl.utils.ftp.ftpClientUtil.FtpTool;
 import com.mgl.utils.httpclient.HttpClientUtil;
 import com.mgl.utils.selfutil.MySelfUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -68,6 +69,21 @@ public class CatchFuTIanDataTask {
 
     @Value("${brightease.csvNewPath}")
     private String csvNewPath;
+
+    @Value("${brightease.ftpZipPath}")
+    private String ftpZipPath;
+
+    @Value("${ftp.host}")
+    private String host;
+
+    @Value("${ftp.port}")
+    private Integer port;
+
+    @Value("${ftp.username}")
+    private String username;
+
+    @Value("${ftp.password}")
+    private String password;
 
     private final static Map<String, String> map = new HashMap<>();
     private String token = "";
@@ -281,18 +297,18 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 13 9 * * ? ")
     @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         String url = Gloables.API_URL;
-        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
+        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(1)));
         Map<String, String> params = new HashMap();
         params.put(Gloables.API_PARAM_TOKEN, Gloables.API_TOKEN);
         params.put(Gloables.API_PARAM_DATE, yesterday.toString());
 //        强制创建目录
-        String dir = csvNewPath + "/" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String dir = ftpZipPath + "/" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         FileUtil.forceDirectory(dir);
         for (CarNumberDict car : cars) {
             try {
@@ -307,15 +323,15 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                String fileName1 =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+"-"+yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"))+ Gloables.CSV_EXTENT;
-                String fileName =1000000+car.getId() +"-"+ params.get(Gloables.API_PARAM_CARID)+ Gloables.CSV_EXTENT;
+                String fileName1 = 1000000 + car.getId() + "-" + params.get(Gloables.API_PARAM_CARID) + "-" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + Gloables.CSV_EXTENT;
+                String fileName = 1000000 + car.getId() + "-" + params.get(Gloables.API_PARAM_CARID) + Gloables.CSV_EXTENT;
 //                导出到csv
                 List<Map<String, Object>> datas = new ArrayList<>();
 //                if (CollectionUtils.isEmpty(data)) {
 //                    continue;
 //                }
                 FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName1);
-                FileOutputStream newOs = new FileOutputStream(dir +"/"+ fileName);
+                FileOutputStream newOs = new FileOutputStream(dir + "/" + fileName);
                 data.forEach(x -> {
 //                    每条数据的代码
                     Map<String, String> codes = x.getCodes();
@@ -399,10 +415,24 @@ public class CatchFuTIanDataTask {
                 continue;
             }
         }
+//        压缩
+        String[] extention = new String[]{Gloables.CSV_EXTENT};
+        List<File> files = FileUtil.listFile(new File(dir), extention, true);
+        if (cars.size() == files.size()) {
+            CompressUtils.zip(dir, dir + ".zip");
+        }
+//        FTP
+        FtpTool tool = new FtpTool(host, port, username, password);
+        tool.initFtpClient();
+        tool.CreateDirecroty("/福田/ddcfs/FFF/FDSLFJ/FDSFS");
+        boolean uploadFile = tool.uploadFile("/福田/ddcfs/FFF/FDSLFJ/FDSFS", yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", dir + ".zip");
+//      删除文件夹
+        if (uploadFile) {
+//            CompressUtils.deleteDirectory(new File(dir));
+//            CompressUtils.doDeleteEmptyDir(dir + ".zip");
+        }
         System.out.println(yesterday + "日=============》数据抓取完毕");
     }
-
-
 
 
     /**
@@ -688,7 +718,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "* 31-41 13 * * ? ")
+//    @Scheduled(cron = "* 0-10 14 * * ? ")
 //    @Scheduled(cron = "* * * * * ? ")
     @Async
     public void getGoldenDragonData() throws Exception {
@@ -713,6 +743,7 @@ public class CatchFuTIanDataTask {
         }
         GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
         List<Map<String, String>> mapDatas = goldenDragonDto.getData();
+        DecimalFormat df = new DecimalFormat("######0.00");
         mapDatas.forEach(x -> {
             String time = "";
             GoldenDragon dragon = new GoldenDragon();
@@ -720,9 +751,13 @@ public class CatchFuTIanDataTask {
             dragon.setTerminalNumber(x.get("DeviceNo"));
             dragon.setOnline(x.get("Online"));
             dragon.setResult(x.get("Result"));
-            dragon.setTotalVoltage(MySelfUtil.getHandleStr(x.get("329609")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329609")).get("value"))) {
+                dragon.setTotalVoltage(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329609")).get("value")) * 0.1) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
-            dragon.setTotalCurrent(MySelfUtil.getHandleStr(x.get("329610")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329610")).get("value"))) {
+                dragon.setTotalCurrent(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329610")).get("value")) * 0.1 - 1000) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329610")).get("time");
             dragon.setSoc(MySelfUtil.getHandleStr(x.get("329611")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329611")).get("time");
@@ -733,7 +768,9 @@ public class CatchFuTIanDataTask {
             dragon.setParamsSecond(MySelfUtil.getHandleStr(x.get("329623")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
 
-            dragon.setParamsThird(MySelfUtil.getHandleStr(x.get("329624")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329624")).get("value"))) {
+                dragon.setParamsThird(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329624")).get("value")) * 0.001) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
 
             dragon.setParamsFouth(MySelfUtil.getHandleStr(x.get("329625")).get("value"));
@@ -742,7 +779,9 @@ public class CatchFuTIanDataTask {
             dragon.setParamsFiveth(MySelfUtil.getHandleStr(x.get("329626")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329626")).get("time");
 
-            dragon.setParamsSix(MySelfUtil.getHandleStr(x.get("329627")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329627")).get("value"))) {
+                dragon.setParamsSix(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329627")).get("value")) * 0.001) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329627")).get("time");
 
             dragon.setParamsSeven(MySelfUtil.getHandleStr(x.get("329628")).get("value"));
@@ -751,7 +790,9 @@ public class CatchFuTIanDataTask {
             dragon.setParamsEight(MySelfUtil.getHandleStr(x.get("329629")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329629")).get("time");
 
-            dragon.setParamsTen(MySelfUtil.getHandleStr(x.get("329630")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329630")).get("value"))) {
+                dragon.setParamsTen(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329630")).get("value")) - 40) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329630")).get("time");
 
             dragon.setParamsEleven(MySelfUtil.getHandleStr(x.get("329631")).get("value"));
@@ -760,7 +801,9 @@ public class CatchFuTIanDataTask {
             dragon.setParamsTewlve(MySelfUtil.getHandleStr(x.get("329632")).get("value"));
             time = MySelfUtil.getHandleStr(x.get("329632")).get("time");
 
-            dragon.setParamsThirteen(MySelfUtil.getHandleStr(x.get("329633")).get("value"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329633")).get("value"))) {
+                dragon.setParamsThirteen(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329633")).get("value")) - 40) + "");
+            }
             time = MySelfUtil.getHandleStr(x.get("329633")).get("time");
 
             dragon.setParamsFourteen(MySelfUtil.getHandleStr(x.get("329635")).get("value"));
@@ -809,5 +852,152 @@ public class CatchFuTIanDataTask {
 //            }
 //        }
 //    }
+
+    //    @Scheduled(cron = "0 0 23 * * ? ")
+//    @Async
+//    public void changeLevel() throws Exception {
+//        LocalDate today = LocalDate.now();
+//        LocalDate yesterday = today.plusDays(-1);
+//        LocalDate sevenDaysAgo = yesterday.plusDays(-8);
+//        List<MglCarshopStaticWarning> list = mglCarshopStaticWarningService.list(new QueryWrapper<>(new MglCarshopStaticWarning().setCurretsDateTime(yesterday.toString()).setType(1).setDelFlag(0)));
+//        list.forEach(x -> {
+//            int flag = 0;
+//            LocalDate localDate = LocalDate.parse(x.getCurretsDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//            LocalDate starDate = localDate.plusDays(-6);
+//            List<MglCarshopStaticWarning> listByCarVinAndDate = mglCarshopStaticWarningService.findListByCarVinAndDate(x.getVin(), starDate.toString(), x.getCurretsDateTime(), x.getCellNumber());
+//            if (listByCarVinAndDate.size() >= 7) {
+//                for (int i = 0; i < listByCarVinAndDate.size() - 1; i++) {
+//                    if (listByCarVinAndDate.get(i).getValue() >= listByCarVinAndDate.get(i + 1).getValue()) {
+//                        break;
+//                    }
+//                    flag++;
+//                }
+//            }
+//            if (flag == 6) {
+//                MglCarshopStaticWarning mglCarshopStaticWarning = mglCarshopStaticWarningService.getById(x.getId()).setType(2);
+//                mglCarshopStaticWarningService.saveOrUpdate(mglCarshopStaticWarning);
+//            }
+//        });
+//    }
+
+    /**
+     * 抓取金龙数据
+     *
+     * @throws Exception
+     */
+//    @Scheduled(cron = "0 27 8 * * ? ")
+//    @Scheduled(cron = "* * * * * ? ")
+//    @Async
+    public void getGoldenDragonDataByFtp() throws Exception {
+        List<String> cars = new ArrayList<>();
+        cars.add("LA9CB22D3KALA6162");
+        cars.add("LA6C7GAB1JC304865");
+        cars.add("LA6C7GAB2JB201959");
+        cars.add("LA9CB22D0K0LA6058");
+        cars.add("LA6C7K1B7JB201894");
+//        totalGetDataByUrlByFtp(cars);
+//        FTPUtil ftpCli = FTPUtil.createFtpCli("ftp.mgldl.com.cn", "mgl", "MglAa110", null);
+//        System.out.println(ftpCli.printParentDirectory());
+//        ftpCli.listFileNames("/福田/国内/2020.7.12数据");
+        FtpTool tool = new FtpTool("ftp.mgldl.com.cn", 21, "mgl", "MglAa110");
+        tool.initFtpClient();
+        tool.CreateDirecroty("/福田/ddcfs/FFF/FDSLFJ/FDSFS");
+        tool.uploadFile("/福田/ddcfs/FFF/FDSLFJ/FDSFS", "test.zip", "D:\\server110\\test.zip");
+
+    }
+
+    private void totalGetDataByUrlByFtp(List<String> cars) {
+        String vehicles = StringUtils.join(cars, ",");
+        String finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
+        String datas = HttpClientUtil.doGet(finalUrl, null);
+        if (datas.length() < 30 && datas.contains("unauthorized")) {
+            String token = HttpClientUtil.doGet(Gloables.GOLD_TOKEN_URL, null);
+            map.put("token", token);
+            finalUrl = Gloables.GOLD_DATA_BASE_URL + vehicles + Gloables.GOLD_PARAMS_TYPES + map.get("token");
+            datas = HttpClientUtil.doGet(finalUrl, null);
+        }
+        GoldenDragonDto goldenDragonDto = JSONObject.parseObject(datas, GoldenDragonDto.class);
+        List<Map<String, String>> mapDatas = goldenDragonDto.getData();
+        DecimalFormat df = new DecimalFormat("######0.00");
+        mapDatas.forEach(x -> {
+            String time = "";
+            GoldenDragon dragon = new GoldenDragon();
+            dragon.setVin(x.get("VehicleID"));
+            dragon.setTerminalNumber(x.get("DeviceNo"));
+            dragon.setOnline(x.get("Online"));
+            dragon.setResult(x.get("Result"));
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329609")).get("value"))) {
+                dragon.setTotalVoltage(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329609")).get("value")) * 0.1) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329609")).get("time");
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329610")).get("value"))) {
+                dragon.setTotalCurrent(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329610")).get("value")) * 0.1 - 1000) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329610")).get("time");
+            dragon.setSoc(MySelfUtil.getHandleStr(x.get("329611")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329611")).get("time");
+
+            dragon.setParamsFirst(MySelfUtil.getHandleStr(x.get("329622")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329622")).get("time");
+
+            dragon.setParamsSecond(MySelfUtil.getHandleStr(x.get("329623")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
+
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329624")).get("value"))) {
+                dragon.setParamsThird(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329624")).get("value")) * 0.001) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
+
+            dragon.setParamsFouth(MySelfUtil.getHandleStr(x.get("329625")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329625")).get("time");
+
+            dragon.setParamsFiveth(MySelfUtil.getHandleStr(x.get("329626")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329626")).get("time");
+
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329627")).get("value"))) {
+                dragon.setParamsSix(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329627")).get("value")) * 0.001) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329627")).get("time");
+
+            dragon.setParamsSeven(MySelfUtil.getHandleStr(x.get("329628")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329628")).get("time");
+
+            dragon.setParamsEight(MySelfUtil.getHandleStr(x.get("329629")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329629")).get("time");
+
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329630")).get("value"))) {
+                dragon.setParamsTen(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329630")).get("value")) - 40) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329630")).get("time");
+
+            dragon.setParamsEleven(MySelfUtil.getHandleStr(x.get("329631")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329631")).get("time");
+
+            dragon.setParamsTewlve(MySelfUtil.getHandleStr(x.get("329632")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329632")).get("time");
+
+            if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329633")).get("value"))) {
+                dragon.setParamsThirteen(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329633")).get("value")) - 40) + "");
+            }
+            time = MySelfUtil.getHandleStr(x.get("329633")).get("time");
+
+            dragon.setParamsFourteen(MySelfUtil.getHandleStr(x.get("329635")).get("value"));
+            time = MySelfUtil.getHandleStr(x.get("329635")).get("time");
+            if (StringUtils.isNotBlank(time)) {
+                dragon.setDataCurrentTime(time);
+                dragon.setCeateTime(LocalDateTime.now());
+                String mapVin = map.get(x.get("VehicleID"));
+                if (StringUtils.isBlank(mapVin)) {
+                    map.put(x.get("VehicleID"), time);
+                } else {
+                    if (!mapVin.equals(time)) {
+                        map.put(x.get("VehicleID"), time);
+                        goldenDragonService.save(dragon);
+                    }
+                }
+            }
+        });
+    }
+
 
 }

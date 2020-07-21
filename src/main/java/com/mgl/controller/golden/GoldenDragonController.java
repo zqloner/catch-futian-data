@@ -11,6 +11,7 @@ import com.mgl.utils.file.FileUtil;
 import com.mgl.utils.props.BeanAndMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
@@ -41,6 +42,9 @@ public class GoldenDragonController {
     @Resource
     private GoldenDragonService goldenDragonService;
 
+    @Value("${brightease.goldenDragonCsvPath}")
+    private String goldenDragonCsvPath;
+
     /**
      * 导出
      *
@@ -57,7 +61,7 @@ public class GoldenDragonController {
             cars.add("LA9CB22D0K0LA6058");
             cars.add("LA6C7K1B7JB201894");
 //            创建文件夹
-            File file = new File("D:\\GoldenDragon");
+            File file = new File(goldenDragonCsvPath);
             if (!file.exists()) {
                 file.mkdir();
             }
@@ -72,20 +76,20 @@ public class GoldenDragonController {
                 list.forEach(x -> {
                     maps.add(BeanAndMap.beanToMap(x));
                     try {
-                        FileOutputStream os = new FileOutputStream("D:\\GoldenDragon\\" + car + ".csv");
+                        FileOutputStream os = new FileOutputStream(goldenDragonCsvPath + car + Gloables.CSV_EXTENT);
                         CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
                     } catch (Exception e) {
                         logger.info("抛出异常啦");
                     }
                 });
             }
-            String[] extention = new String[]{".csv"};
-            List<File> files = FileUtil.listFile(new File("D:\\GoldenDragon"), extention, true);
+            String[] extention = new String[]{Gloables.CSV_EXTENT};
+            List<File> files = FileUtil.listFile(new File(goldenDragonCsvPath), extention, true);
             System.out.println(files);
             if (flag==files.size()) {
                 Thread.sleep(2000);
-                CompressUtils.zip("D:\\GoldenDragon", response.getOutputStream());
-                CompressUtils.deleteDirectory(new File("D:\\GoldenDragon"));
+                CompressUtils.zip(goldenDragonCsvPath, response.getOutputStream());
+                CompressUtils.deleteDirectory(new File(goldenDragonCsvPath));
             }
         } catch (Exception e) {
             e.printStackTrace();
