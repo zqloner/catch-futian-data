@@ -29,7 +29,6 @@ public interface Gloables {
     String GOLD_DATA_BASE_URL = "http://106.13.23.167:9095/VehicleData/GetByVehicleVIN?vehicles=";
     String GOLD_PARAMS_TYPES = "&types=329609,329610,329611,329622,329623,329624,329625,329626,329627,329628,329629,329630,329631,329632,329633,329635&token=";
 
-
-    String GOLDEN_TITLE = "vin,总电压,总电流,soc,最高电压电池子系统号,最高电压电池单体代号,电池单体电压最高值,最低电压电池子系统号,最低电压电池单体代号,电池单体电压最低值,最高温度子系统号,最高温度探针序号,最高温度值,最低温度子系统号,最低温度探针序号,最低温度值,通用报警标志,时间";
-    String GOLDEN_KEYS = "vin,totalVoltage,totalCurrent,soc,paramsFirst,paramsSecond,paramsThird,paramsFouth,paramsFiveth,paramsSix,paramsSeven,paramsEight,paramsTen,paramsEleven,paramsTewlve,paramsThirteen,paramsFourteen,dataCurrentTime";
+    String GOLDEN_TITLE = "vin,车速,数据时间,里程,电池单体电压最高值,最高电压电池单体代号,电池单体电压最低值,最低电压电池单体代号,总电压,总电流,最高温度值,最低温度值,最高温度探针序号,最低温度探针序号,SOC,单体电池温度,单体电池电压,绝缘电阻,SOC低报警,电池高温报警,温度差异报警,车载储能装置类型过压报警,车载储能装置类型欠压报警,充电储能系统不匹配报警,最高报警等级,车载储能装置类型过充报警,SOC跳变报警,绝缘报警,DC状态报警,高压互锁报警,电池单体一致性差报警,单体蓄电池过压报警,单体蓄电池欠压报警,SOC过高报警,加热系统故障,放电超出限制报警,充电超出限制报警,低温报警";  // 设置表头
+    String GOLDEN_KEYS = "vin,speed,dataCurrentTime,mileages,paramsThird,paramsSecond,paramsSix,paramsFiveth,totalVoltage,totalCurrent,paramsTen,params_thirteen,params_eight,params_tewlve,soc,params_first_new,params_fouth_new,params_seven_new,params_eleven_new,one,two,three,four,five,params_fourteen,seven,eight,nine,ten,eleven,tewlve,thirteen,fourtween,fiftween,sixtween,seventween,eightween,nintween";
 }

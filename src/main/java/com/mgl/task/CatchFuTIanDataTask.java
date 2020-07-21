@@ -293,11 +293,11 @@ public class CatchFuTIanDataTask {
 
 
     /**
-     * 抓取数据   导出到csv和不存详情
+     * 抓取数据   导出到csv和不存详情以及上传至FTP
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 10 10 21 * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
@@ -825,34 +825,6 @@ public class CatchFuTIanDataTask {
     }
 
 
-//    @Async
-//    @Scheduled(cron = "0/5 * * * * ? ")
-//    public void startSchedule() {
-//        System.out.println("===========1=>");
-//        try {
-//            for(int i=1;i<=10;i++){
-//                System.out.println("=1==>"+i);
-//                Thread.sleep(1000);
-//            }
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
-//    @Async
-//    @Scheduled(cron = "0/5 * * * * ? ")
-//    public void startSchedule2() {
-//        for(int i=1;i<=10;i++){
-//            System.out.println("=2==>"+i);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     //    @Scheduled(cron = "0 0 23 * * ? ")
 //    @Async
 //    public void changeLevel() throws Exception {
@@ -881,13 +853,13 @@ public class CatchFuTIanDataTask {
 //    }
 
     /**
-     * 抓取金龙数据
+     * 抓取金龙数据  上传至FTP
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 27 8 * * ? ")
+//    @Scheduled(cron = "* 0-10 14 21 * ? ")
 //    @Scheduled(cron = "* * * * * ? ")
-//    @Async
+    @Async
     public void getGoldenDragonDataByFtp() throws Exception {
         List<String> cars = new ArrayList<>();
         cars.add("LA9CB22D3KALA6162");
@@ -895,14 +867,12 @@ public class CatchFuTIanDataTask {
         cars.add("LA6C7GAB2JB201959");
         cars.add("LA9CB22D0K0LA6058");
         cars.add("LA6C7K1B7JB201894");
-//        totalGetDataByUrlByFtp(cars);
-//        FTPUtil ftpCli = FTPUtil.createFtpCli("ftp.mgldl.com.cn", "mgl", "MglAa110", null);
-//        System.out.println(ftpCli.printParentDirectory());
-//        ftpCli.listFileNames("/福田/国内/2020.7.12数据");
-        FtpTool tool = new FtpTool("ftp.mgldl.com.cn", 21, "mgl", "MglAa110");
-        tool.initFtpClient();
-        tool.CreateDirecroty("/福田/ddcfs/FFF/FDSLFJ/FDSFS");
-        tool.uploadFile("/福田/ddcfs/FFF/FDSLFJ/FDSFS", "test.zip", "D:\\server110\\test.zip");
+        totalGetDataByUrlByFtp(cars);
+
+//        FtpTool tool = new FtpTool("ftp.mgldl.com.cn", 21, "mgl", "MglAa110");
+//        tool.initFtpClient();
+//        tool.CreateDirecroty("/福田/ddcfs/FFF/FDSLFJ/FDSFS");
+//        tool.uploadFile("/福田/ddcfs/FFF/FDSLFJ/FDSFS", "test.zip", "D:\\server110\\test.zip");
 
     }
 
