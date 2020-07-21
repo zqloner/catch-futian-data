@@ -297,13 +297,13 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 13 9 * * ? ")
+    @Scheduled(cron = "0 10 10 21 * ? ")
     @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         String url = Gloables.API_URL;
-        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(1)));
+        List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
         Map<String, String> params = new HashMap();
         params.put(Gloables.API_PARAM_TOKEN, Gloables.API_TOKEN);
         params.put(Gloables.API_PARAM_DATE, yesterday.toString());
@@ -424,12 +424,12 @@ public class CatchFuTIanDataTask {
 //        FTP
         FtpTool tool = new FtpTool(host, port, username, password);
         tool.initFtpClient();
-        tool.CreateDirecroty("/福田/ddcfs/FFF/FDSLFJ/FDSFS");
-        boolean uploadFile = tool.uploadFile("/福田/ddcfs/FFF/FDSLFJ/FDSFS", yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", dir + ".zip");
+        tool.CreateDirecroty(Gloables.FUTIAN_ZIP_PATH);
+        boolean uploadFile = tool.uploadFile(Gloables.FUTIAN_ZIP_PATH, yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", dir + ".zip");
 //      删除文件夹
         if (uploadFile) {
-//            CompressUtils.deleteDirectory(new File(dir));
-//            CompressUtils.doDeleteEmptyDir(dir + ".zip");
+            CompressUtils.deleteDirectory(new File(dir));
+            CompressUtils.doDeleteEmptyDir(dir + ".zip");
         }
         System.out.println(yesterday + "日=============》数据抓取完毕");
     }
