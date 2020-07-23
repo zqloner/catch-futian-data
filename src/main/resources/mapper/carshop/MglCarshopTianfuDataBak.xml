@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mgl.dao.carshop.MglCarshopTianfuDataBakMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.mgl.bean.carshop.MglCarshopTianfuDataBak">
+        <id column="id" property="id" />
+        <result column="car_vin" property="carVin" />
+        <result column="json_content" property="jsonContent" />
+        <result column="text_content" property="textContent" />
+        <result column="create_date" property="createDate" />
+        <result column="real_date" property="realDate" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, car_vin, json_content, text_content, create_date, real_date
+    </sql>
+
+</mapper>

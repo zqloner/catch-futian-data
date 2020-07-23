@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.carshop.CarNumberDict;
 import com.mgl.bean.carshop.MglCarshopTianfuData;
+import com.mgl.bean.carshop.MglCarshopTianfuDataBak;
 import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
 import com.mgl.bean.dto.GoldenDragonDto;
@@ -11,6 +12,7 @@ import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
+import com.mgl.service.carshop.MglCarshopTianfuDataBakService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.service.warns.MglCarshopStaticWarningService;
@@ -23,6 +25,7 @@ import com.mgl.utils.selfutil.MySelfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -55,6 +58,8 @@ public class CatchFuTIanDataTask {
 
     @Resource
     private MglCarshopTianfuDataService mglCarshopTianfuDataService;
+    @Autowired
+    private MglCarshopTianfuDataBakService mglCarshopTianfuDataBakService;
     @Resource
     private CarNumberDictService carNumberDictService;
     @Resource
@@ -320,6 +325,7 @@ public class CatchFuTIanDataTask {
                 }
 //                存原始数据
                 mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
+                mglCarshopTianfuDataBakService.save(new MglCarshopTianfuDataBak().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
