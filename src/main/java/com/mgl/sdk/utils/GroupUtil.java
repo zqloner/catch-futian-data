@@ -35,15 +35,16 @@ public class GroupUtil {
             // 有余数
             if (remainder > 0) {
                 groupNum += 1;
-                for (int i = 0 ; i < groupNum ; i++) {
+            }
+            for (int i = 0 ; i < groupNum ; i++) {
+                if (remainder > 0 && i == groupNum -1) {
                     groupList.add(list.subList(i * groupCount, i * groupCount + remainder ));
-                }
-            } else {
-                // 没有余数
-                for (int i = 0 ; i < groupNum ; i++) {
+                } else {
                     groupList.add(list.subList(i * groupCount, (i + 1) * groupCount));
                 }
+
             }
+
         }
         return groupList;
     }

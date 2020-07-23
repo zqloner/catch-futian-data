@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Description TODO
@@ -73,7 +74,7 @@ public class GoldenDragonQuartzJob {
     @Value("${ftp.password}")
     private String password;
 
-    private static final Map<String, String> map = new HashMap<>();
+    private static final Map<String, String> map = new ConcurrentHashMap<>();
     private String time = "";
 
     /**
@@ -90,7 +91,7 @@ public class GoldenDragonQuartzJob {
         // 创建线程池
         MglThreadPoolExecutor executor = null;
         try {
-            executor = new MglThreadPoolExecutor(5,5,30,"金龙实时数据请求");
+            executor = new MglThreadPoolExecutor(4,32,30,"金龙实时数据请求");
             Set<Callable<Map>> callables = new HashSet<>();
             // 将汽车分组（每300辆分一组）
             List<List<CarGoldenDragonNumberDict>> lists = GroupUtil.divideGroup(numberDictList, 300);
@@ -133,7 +134,7 @@ public class GoldenDragonQuartzJob {
         // 创建线程池
         MglThreadPoolExecutor poolExecutor = null;
         try {
-            poolExecutor = new MglThreadPoolExecutor(5,16,30,"金龙数据生成csv");
+            poolExecutor = new MglThreadPoolExecutor(4,128,30,"金龙数据生成csv");
             Set<Callable<Map>> callables = new HashSet<>();
             for (int i = 0;i < goldenDragonList.size(); i++) {
                 int finalI = i;
@@ -343,7 +344,6 @@ public class GoldenDragonQuartzJob {
                 goldenDragon.setParamsFourteen(commonAlarmMark);
                 time = commonAlarmMarkMap.get("time");
             }
-            System.out.println("++++++++++++++"+time);
             if (StringUtils.isNotBlank(time)) {
                 goldenDragon.setDataCurrentTime(time);
                 goldenDragon.setCeateTime(LocalDateTime.now());
