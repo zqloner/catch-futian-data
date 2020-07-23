@@ -78,7 +78,7 @@ public class GoldenDragonQuartzJob {
     /**
      * 定时任务抓取数据
      */
-    @Scheduled(cron = "0 0 5-23 * * ? ")
+    @Scheduled(cron = "* * 5-23 * * ? ")
     @Async
     public void getGoldenDragonData(){
         List<CarGoldenDragonNumberDict> numberDictList =
