@@ -19,6 +19,6 @@ public class MySelfUtil {
             map.put("time",string.split(",")[1]);
             return map;
         }
-        return map;
+        return null;
     }
 }

@@ -118,72 +118,39 @@ public class FileUtil {
      * 列出指定目录下指定扩展名的所有文件
      */
 
-    public static List<File> listFile(File dir,
-
-                                      final String[] extensions, boolean recursive) {
+    public static List<File> listFile(File dir,final String[] extensions, boolean recursive) {
 
         if (!dir.exists()) {
-
-            throw new IllegalArgumentException("目录：" + dir +
-
-                    "不存在");
-
+            throw new IllegalArgumentException("目录：" + dir + "不存在");
         }
-
         if (!dir.isDirectory()) {
-
             throw new IllegalArgumentException(dir + "不是目录");
-
         }
-
         FileFilter ff = null;
-
         if (extensions == null || extensions.length == 0) {
-
             ff = new FileFilter() {
-
                 @Override
                 public boolean accept(File pathname) {
-
                     return true;
-
                 }
-
             };
-
         } else {
-
             ff = new FileFilter() {
-
                 @Override
                 public boolean accept(File pathname) {
-
                     if (pathname.isDirectory())
-
                         return true;
-
                     String name = pathname.getName();
-
                     for (String ext : extensions) {
-
                         if (name.endsWith(ext)) {
-
                             return true;
-
                         }
-
                     }
-
                     return false;
-
                 }
-
             };
-
         }
-
         return listFile(dir, ff, recursive);
-
     }
 
     /**

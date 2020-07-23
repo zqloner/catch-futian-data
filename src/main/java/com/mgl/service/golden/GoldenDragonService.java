@@ -1,9 +1,9 @@
 package com.mgl.service.golden;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.mgl.bean.golden.GoldenDragon;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.mgl.bean.golden.GoldenDragon;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -16,4 +16,11 @@ import java.util.List;
  */
 public interface GoldenDragonService extends IService<GoldenDragon> {
     List<GoldenDragon> getOrderDate(String vin);
+
+    /**
+     * 查询前一天的数据
+     * @param yesterday 前一天
+     * @return 集合
+     */
+    List<GoldenDragon> queryDataTheDayBrfore(LocalDate yesterday);
 }

@@ -1,0 +1,51 @@
+package com.mgl.sdk.utils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Description TODO
+ * @Author fengwei
+ * @Date 2020/7/23 9:15
+ * @Version 1.0
+ */
+public class GroupUtil {
+
+    /**
+     * 对list进行分组
+     * @param list 带分组的list
+     * @param groupCount 每个分组的数据条数
+     * @return 分组后的list
+     */
+    public static<T> List<List<T>> divideGroup(List<T> list, int groupCount){
+        if (list.size() == 0) {
+            return null;
+        }
+        // 本次分组的总个数
+        int totalCount = list.size();
+        // 进行分发
+        List<List<T>> groupList = new ArrayList<>();
+        // 如果取到的数据比分组数据还小，则不用分组
+        if (totalCount < groupCount) {
+            groupList.add(list);
+        } else {
+            // 分组数
+            int remainder = totalCount % groupCount;
+            int groupNum = totalCount / groupCount ;
+            // 有余数
+            if (remainder > 0) {
+                groupNum += 1;
+                for (int i = 0 ; i < groupNum ; i++) {
+                    groupList.add(list.subList(i * groupCount, i * groupCount + remainder ));
+                }
+            } else {
+                // 没有余数
+                for (int i = 0 ; i < groupNum ; i++) {
+                    groupList.add(list.subList(i * groupCount, (i + 1) * groupCount));
+                }
+            }
+        }
+        return groupList;
+    }
+
+}

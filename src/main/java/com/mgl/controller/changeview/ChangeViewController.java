@@ -19,6 +19,11 @@ public class ChangeViewController {
         return "ftp";
     }
 
+    @RequestMapping("/toGoldenDragonImport")
+    public String mvc2(){
+        return "golden-dragon-import";
+    }
+
     @RequestMapping("/carInfo")
     public String carInfo(){
         return "futian-car-Info";

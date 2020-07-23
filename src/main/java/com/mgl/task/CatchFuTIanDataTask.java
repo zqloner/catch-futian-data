@@ -330,7 +330,7 @@ public class CatchFuTIanDataTask {
 //                if (CollectionUtils.isEmpty(data)) {
 //                    continue;
 //                }
-                FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName1);
+//                FileOutputStream os = new FileOutputStream(csvBeiyouPath + fileName1);
                 FileOutputStream newOs = new FileOutputStream(dir + "/" + fileName);
                 data.forEach(x -> {
 //                    每条数据的代码
@@ -407,7 +407,7 @@ public class CatchFuTIanDataTask {
                     datas.add(map);
                 });
 //                导出到csv
-                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, os);
+//                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, os);
                 CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, newOs);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -769,7 +769,7 @@ public class CatchFuTIanDataTask {
             time = MySelfUtil.getHandleStr(x.get("329623")).get("time");
 
             if (StringUtils.isNotBlank(MySelfUtil.getHandleStr(x.get("329624")).get("value"))) {
-                dragon.setParamsThird(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329624")).get("value")) * 0.001) + "");
+                    dragon.setParamsThird(df.format(Double.parseDouble(MySelfUtil.getHandleStr(x.get("329624")).get("value")) * 0.001) + "");
             }
             time = MySelfUtil.getHandleStr(x.get("329624")).get("time");
 

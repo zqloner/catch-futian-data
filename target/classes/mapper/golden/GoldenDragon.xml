@@ -37,4 +37,8 @@
         SELECT * from golden_dragon  where vin = #{vin} ORDER BY data_current_time
     </select>
 
+    <select id="queryDataTheDayBefore" resultMap="BaseResultMap">
+        select * from golden_dragon where date_format(data_current_time,'%Y-%m-%d') = #{yesterday}
+    </select>
+
 </mapper>

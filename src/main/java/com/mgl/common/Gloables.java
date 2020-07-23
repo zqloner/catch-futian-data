@@ -31,4 +31,6 @@ public interface Gloables {
 
     String GOLDEN_TITLE = "vin,车速,数据时间,里程,电池单体电压最高值,最高电压电池单体代号,电池单体电压最低值,最低电压电池单体代号,总电压,总电流,最高温度值,最低温度值,最高温度探针序号,最低温度探针序号,SOC,单体电池温度,单体电池电压,绝缘电阻,SOC低报警,电池高温报警,温度差异报警,车载储能装置类型过压报警,车载储能装置类型欠压报警,充电储能系统不匹配报警,最高报警等级,车载储能装置类型过充报警,SOC跳变报警,绝缘报警,DC状态报警,高压互锁报警,电池单体一致性差报警,单体蓄电池过压报警,单体蓄电池欠压报警,SOC过高报警,加热系统故障,放电超出限制报警,充电超出限制报警,低温报警";  // 设置表头
     String GOLDEN_KEYS = "vin,speed,dataCurrentTime,mileages,paramsThird,paramsSecond,paramsSix,paramsFiveth,totalVoltage,totalCurrent,paramsTen,paramsThirteen,params_eight,params_tewlve,soc,params_first_new,params_fouth_new,params_seven_new,params_eleven_new,one,two,three,four,five,params_fourteen,seven,eight,nine,ten,eleven,tewlve,thirteen,fourtween,fiftween,sixtween,seventween,eightween,nintween";
+    // zip path
+    String GOLDENDRAGON_ZIP_PATH = "/厦门金龙/MGL-GoldenDragon";
 }

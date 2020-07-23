@@ -3,7 +3,9 @@ package com.mgl.dao.golden;
 import com.mgl.bean.golden.GoldenDragon;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -18,4 +20,11 @@ import java.util.List;
 public interface GoldenDragonMapper extends BaseMapper<GoldenDragon> {
 
     List<GoldenDragon> getOrderDate(String vin);
+
+    /**
+     * 查询前一天的数据
+     * @param yesterday 前一天
+     * @return 集合
+     */
+    List<GoldenDragon> queryDataTheDayBefore(@Param("yesterday") LocalDate yesterday);
 }

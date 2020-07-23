@@ -1,13 +1,13 @@
 package com.mgl.service.golden.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.dao.golden.GoldenDragonMapper;
 import com.mgl.service.golden.GoldenDragonService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -27,5 +27,10 @@ public class GoldenDragonServiceImpl extends ServiceImpl<GoldenDragonMapper, Gol
     @Override
     public List<GoldenDragon> getOrderDate(String vin) {
         return dragonMapper.getOrderDate(vin);
+    }
+
+    @Override
+    public List<GoldenDragon> queryDataTheDayBrfore(LocalDate yesterday) {
+        return dragonMapper.queryDataTheDayBefore(yesterday);
     }
 }
