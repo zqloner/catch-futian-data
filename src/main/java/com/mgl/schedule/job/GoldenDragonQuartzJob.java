@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -83,6 +84,9 @@ public class GoldenDragonQuartzJob {
     public void getGoldenDragonData(){
         List<CarGoldenDragonNumberDict> numberDictList =
                 carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
+        if (CollectionUtils.isEmpty(numberDictList)) {
+            return;
+        }
         // 创建线程池
         MglThreadPoolExecutor executor = null;
         try {
