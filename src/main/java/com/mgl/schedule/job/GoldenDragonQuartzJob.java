@@ -23,7 +23,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -75,13 +74,11 @@ public class GoldenDragonQuartzJob {
     private String password;
 
     private static final Map<String, String> map = new ConcurrentHashMap<>();
-    private String time = "";
 
     /**
      * 定时任务抓取数据
      */
     @Scheduled(cron = "* * 5-23 * * ? ")
-    @Async
     public void getGoldenDragonData(){
         List<CarGoldenDragonNumberDict> numberDictList =
                 carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
@@ -118,7 +115,6 @@ public class GoldenDragonQuartzJob {
      * 定时任务生成csv
      */
     @Scheduled(cron = "0 0 0 * * ? ")
-    @Async
     public void uploadGoldenDragonData(){
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -149,7 +145,7 @@ public class GoldenDragonQuartzJob {
             String[] extention = new String[]{Gloables.CSV_EXTENT};
             List<File> files = FileUtil.listFile(new File(goldenDragonCsvPath), extention, true);
             if (goldenDragonList.size() == files.size()) {
-                CompressUtils.zip(dir, dir + ".zip");
+                CompressUtils.zip(goldenDragonCsvPath, dir + ".zip");
             }
             // FTP
             FtpTool tool = new FtpTool(host, port, username, password);
@@ -189,7 +185,7 @@ public class GoldenDragonQuartzJob {
         } catch (Exception e) {
             throw new MglRuntimeException("金龙生成csv出错！", e);
         }
-        return null;
+        return "csv generation successful";
     }
 
     /**
@@ -219,6 +215,7 @@ public class GoldenDragonQuartzJob {
     private List<GoldenDragon> assembleData(List<Map<String, String>> data) {
         List<GoldenDragon> goldenDragons = new ArrayList<>();
         data.forEach(entity -> {
+            String time = "";
             GoldenDragon goldenDragon = new GoldenDragon();
             // 车辆VIN
             goldenDragon.setVin(entity.get("VehicleID"));
@@ -352,7 +349,7 @@ public class GoldenDragonQuartzJob {
                     map.put(entity.get("VehicleID"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
-                }else if (goldenDragon.getVin().equals(entity.get("VehicleID")) && !vehicleId.equals(time)) {
+                }else if (!vehicleId.equals(time)) {
                     map.put(entity.get("VehicleID"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
