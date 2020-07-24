@@ -303,7 +303,7 @@ public class CatchFuTIanDataTaskCopy {
      * @throws Exception
      */
 //    @Scheduled(cron = "0 0 0 * * ? ")
-    @Async
+//    @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -863,7 +863,7 @@ public class CatchFuTIanDataTaskCopy {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "* 42-52 18 21 * ? ")
+//    @Scheduled(cron = "* 42-52 18 21 * ? ")
 //    @Scheduled(cron = "* * * * * ? ")
     @Async
     public void getGoldenDragonDataByFtp() throws Exception {

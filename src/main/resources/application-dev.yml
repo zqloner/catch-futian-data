@@ -1,9 +1,9 @@
 #上传路径配置
 brightease:
-  csvBeiyouPath: d:/server110/test/
-  csvNewPath: d:/server110/mytest/
-  filePath: d:/
-  tempUpLoadPath: d:/
+  #csvBeiyouPath: d:/server110/test/
+  #csvNewPath: d:/server110/mytest/
+  #filePath: d:/
+  #tempUpLoadPath: d:/
   goldenDragonCsvPath: d:/GoldenDragon/
   ftpZipPath: D:/server110/csv-zip
 

@@ -1,9 +1,9 @@
 #上传路径配置
 brightease:
-  csvBeiyouPath: /home/data/beiyou/csvfile/
-  csvNewPath: /home/data/beiyoubackup/csv-everyday/
-  filePath: /opt/root/beiyou/
-  tempUpLoadPath: /opt/root/beiyou/temp/
+ # csvBeiyouPath: /home/data/beiyou/csvfile/
+ # csvNewPath: /home/data/beiyoubackup/csv-everyday/
+ # filePath: /opt/root/beiyou/
+  #tempUpLoadPath: /opt/root/beiyou/temp/
   goldenDragonCsvPath: /home/data/goldenDragonCsvPath/
   ftpZipPath: /home/data/beiyoubackup/csv-everyday-zip
 
