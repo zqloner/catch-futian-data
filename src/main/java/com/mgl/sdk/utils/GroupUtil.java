@@ -49,4 +49,13 @@ public class GroupUtil {
         return groupList;
     }
 
+    /**
+     * 按list中某个值进行分组
+     * @param list 待分组的list
+     * @param <T> 泛型
+     * @return 分组后的list
+     */
+    public static<T> List<List<T>> csvGroup(List<T> list){
+        return null;
+    }
 }

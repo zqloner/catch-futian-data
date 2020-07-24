@@ -23,6 +23,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -79,6 +80,7 @@ public class GoldenDragonQuartzJob {
      * 定时任务抓取数据
      */
     @Scheduled(cron = "* * 5-23 * * ? ")
+    @Async
     public void getGoldenDragonData(){
         List<CarGoldenDragonNumberDict> numberDictList =
                 carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
@@ -115,48 +117,65 @@ public class GoldenDragonQuartzJob {
      * 定时任务生成csv
      */
     @Scheduled(cron = "0 0 0 * * ? ")
+    @Async
     public void uploadGoldenDragonData(){
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         // 查询出金龙数据(昨天生成的)
-        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(yesterday);
+        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(today);
         // 创建目录
-        File file = new File(goldenDragonCsvPath);
-        if (!file.exists()) {
-            FileUtil.forceDirectory(goldenDragonCsvPath);
+        String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        File file = new File(goldenDragonDir);
+        if (!file.exists() && !file.isDirectory()) {
+            FileUtil.forceDirectory(goldenDragonDir);
         }
-        String dir = ftpZipPath + "/" + yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        FileUtil.forceDirectory(dir);
         // 创建线程池
         MglThreadPoolExecutor poolExecutor = null;
         try {
             poolExecutor = new MglThreadPoolExecutor(4,128,30,"金龙数据生成csv");
+            // 数据分组（每一辆车分一组）
+            List<String> groupList = new ArrayList<>();
+            goldenDragonList.forEach(goldenDragon -> {
+                if (!groupList.contains(goldenDragon.getVin())) {
+                    groupList.add(goldenDragon.getVin());
+                }
+            });
+            List<List<GoldenDragon>> list = new ArrayList<>();
+            for (String str : groupList) {
+                List<GoldenDragon> x = new ArrayList<>();
+                for (GoldenDragon entity : goldenDragonList) {
+                    if (str.equals(entity.getVin())) {
+                        x.add(entity);
+                    }
+                }
+                list.add(x);
+            }
             Set<Callable<Map>> callables = new HashSet<>();
-            for (int i = 0;i < goldenDragonList.size(); i++) {
+            for (int i = 0;i < list.size(); i++) {
                 int finalI = i;
                 callables.add(() -> {
                     Map map = new HashMap();
-                    map.put("group-" + finalI,generateGoldenDragonCsv(goldenDragonList.get(finalI)));
+                    map.put("group-" + finalI,generateGoldenDragonCsv(list.get(finalI), goldenDragonDir));
                     return map;
                 });
             }
             poolExecutor.invokeAll(callables);
             // 压缩
             String[] extention = new String[]{Gloables.CSV_EXTENT};
-            List<File> files = FileUtil.listFile(new File(goldenDragonCsvPath), extention, true);
-            if (goldenDragonList.size() == files.size()) {
-                CompressUtils.zip(goldenDragonCsvPath, dir + ".zip");
+            List<File> files = FileUtil.listFile(new File(goldenDragonDir), extention, true);
+            if (list.size() == files.size()) {
+                CompressUtils.zip(goldenDragonDir, goldenDragonDir + ".zip");
             }
             // FTP
             FtpTool tool = new FtpTool(host, port, username, password);
             tool.initFtpClient();
             tool.CreateDirecroty(Gloables.GOLDENDRAGON_ZIP_PATH);
             boolean uploadFile = tool.uploadFile(Gloables.GOLDENDRAGON_ZIP_PATH,
-                    yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".zip", dir + ".zip");
+                    yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".zip", goldenDragonDir + ".zip");
             // 删除文件夹
-            if (uploadFile) {
-                CompressUtils.deleteDirectory(new File(dir));
-                CompressUtils.doDeleteEmptyDir(dir + ".zip");
+            if (uploadFile && file.exists()) {
+                CompressUtils.deleteDirectory(new File(goldenDragonDir));
+                CompressUtils.doDeleteEmptyDir(goldenDragonDir + ".zip");
             }
             log.info(yesterday + "日=============》数据抓取完毕");
         } catch (Exception e) {
@@ -171,16 +190,18 @@ public class GoldenDragonQuartzJob {
 
     /**
      * 生成金龙的csv
-     * @param goldenDragon 金龙数据
+     * @param goldenDragonList 金龙数据
      * @return csv
      */
-    private Object generateGoldenDragonCsv(GoldenDragon goldenDragon) {
+    private Object generateGoldenDragonCsv(List<GoldenDragon> goldenDragonList, String goldenDragonDir) {
         // 生成csv
         List<Map<String, Object>> maps = new ArrayList<>();
-        maps.add(BeanAndMap.beanToMap(goldenDragon));
+        goldenDragonList.forEach(entity -> {
+            maps.add(BeanAndMap.beanToMap(entity));
+        });
         FileOutputStream os = null;
         try {
-            os = new FileOutputStream(goldenDragonCsvPath + goldenDragon.getVin() + Gloables.CSV_EXTENT);
+            os = new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
             CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
         } catch (Exception e) {
             throw new MglRuntimeException("金龙生成csv出错！", e);

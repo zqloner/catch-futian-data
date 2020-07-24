@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -69,11 +68,11 @@ public class CatchFuTIanDataTaskCopy {
     @Resource
     private GoldenDragonService goldenDragonService;
 
-    @Value("${brightease.csvBeiyouPath}")
-    private String csvBeiyouPath;
-
-    @Value("${brightease.csvNewPath}")
-    private String csvNewPath;
+//    @Value("${brightease.csvBeiyouPath}:")
+//    private String csvBeiyouPath;
+//
+//    @Value("${brightease.csvNewPath}")
+//    private String csvNewPath;
 
     @Value("${brightease.ftpZipPath}")
     private String ftpZipPath;
