@@ -56,9 +56,6 @@ public class GoldenDragonQuartzJob {
     @Autowired
     private CarGoldenDragonNumberDictService carGoldenDragonNumberDictService;
 
-    @Value("${brightease.ftpZipPath}")
-    private String ftpZipPath;
-
     @Value("${brightease.goldenDragonCsvPath}")
     private String goldenDragonCsvPath;
 
@@ -122,7 +119,7 @@ public class GoldenDragonQuartzJob {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
         // 查询出金龙数据(昨天生成的)
-        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(today);
+        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(yesterday);
         // 创建目录
         String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         File file = new File(goldenDragonDir);
