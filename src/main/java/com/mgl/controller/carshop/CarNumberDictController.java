@@ -3,6 +3,7 @@ package com.mgl.controller.carshop;
 
 import com.mgl.bean.carshop.CarNumberDict;
 import com.mgl.bean.carshop.MglCarshopFutianDataDetail;
+import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.utils.common.CommonResult;
 import com.mgl.utils.excel.ExcelUtils;
@@ -54,7 +55,7 @@ public class CarNumberDictController {
             }
         }
         list.stream().forEach(x -> {
-            x.setDelFlag(0);
+            x.setDelFlag(Gloables.DELETE_NORMAL);
         });
         return carNumberDictService.saveBatch(list) ? CommonResult.success("添加成功！共导入" + list.size() + "条数据") : CommonResult.failed("导入失败");
     }

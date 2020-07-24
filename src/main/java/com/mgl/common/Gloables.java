@@ -7,6 +7,10 @@ package com.mgl.common;
  * @Company: MGL
  */
 public interface Gloables {
+    Integer DELETE_NORMAL = 0;
+    Integer DELETE_FLAG = 1;
+
+
     //    token
     String API_PARAM_TOKEN = "token";
     String API_PARAM_DATE = "queryDate";
