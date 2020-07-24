@@ -352,7 +352,7 @@ public class GoldenDragonQuartzJob {
                     map.put(entity.get("VehicleID"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
-                }else if (!vehicleId.equals(time)) {
+                }else if (goldenDragon.getVin().equals(entity.get("VehicleID")) && !vehicleId.equals(time)) {
                     map.put(entity.get("VehicleID"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
