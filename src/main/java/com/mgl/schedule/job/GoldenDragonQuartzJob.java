@@ -71,7 +71,7 @@ public class GoldenDragonQuartzJob {
     @Value("${ftp.password}")
     private String password;
 
-    private static final Map<String, String> map = new ConcurrentHashMap<>();
+    private static final Map<String, String> GLOBAL_MAP = new ConcurrentHashMap<>();
 
     /**
      * 定时任务抓取数据
@@ -211,7 +211,7 @@ public class GoldenDragonQuartzJob {
      * @param cars 车辆数据
      * @return
      */
-    private Object buildData(List<CarGoldenDragonNumberDict> cars) {
+    private synchronized Object buildData(List<CarGoldenDragonNumberDict> cars) {
         String token = restTemplate.getForObject(Gloables.GOLD_TOKEN_URL,String.class);
         log.info("[token]:{}",token);
         List<String> carVin = new ArrayList<>();
@@ -230,7 +230,7 @@ public class GoldenDragonQuartzJob {
      * 组装数据
      * @param data 金龙数据
      */
-    private List<GoldenDragon> assembleData(List<Map<String, String>> data) {
+    private  List<GoldenDragon> assembleData(List<Map<String, String>> data) {
         List<GoldenDragon> goldenDragons = new ArrayList<>();
         data.forEach(entity -> {
             String time = "";
@@ -362,13 +362,13 @@ public class GoldenDragonQuartzJob {
             if (StringUtils.isNotBlank(time)) {
                 goldenDragon.setDataCurrentTime(time);
                 goldenDragon.setCeateTime(LocalDateTime.now());
-                String vehicleId = map.get(entity.get("VehicleID"));
+                String vehicleId = GLOBAL_MAP.get(entity.get("DeviceNo"));
                 if (StringUtils.isBlank(vehicleId)) {
-                    map.put(entity.get("VehicleID"),time);
+                    GLOBAL_MAP.put(entity.get("DeviceNo"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
                 }else if (!vehicleId.equals(time)) {
-                    map.put(entity.get("VehicleID"),time);
+                    GLOBAL_MAP.put(entity.get("DeviceNo"),time);
                     goldenDragonService.save(goldenDragon);
                     goldenDragons.add(goldenDragon);
                 }
