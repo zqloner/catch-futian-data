@@ -36,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description TODO
@@ -73,16 +74,26 @@ public class GoldenDragonQuartzJob {
 
     private static final Map<String, String> GLOBAL_MAP = new ConcurrentHashMap<>();
 
+    private List<CarGoldenDragonNumberDict> numberDictList = null;
+
+    private AtomicInteger count = new AtomicInteger(0);
+
     /**
      * 定时任务抓取数据
      */
     @Scheduled(cron = "* * 5-23 * * ? ")
     @Async
     public void getGoldenDragonData(){
-        List<CarGoldenDragonNumberDict> numberDictList =
-                carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
+        if (count.get() == 0 || CollectionUtils.isEmpty(numberDictList)) {
+            numberDictList = carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
+        }
+        count.getAndIncrement();
         if (CollectionUtils.isEmpty(numberDictList)) {
             return;
+        }
+        // 每隔12小时查询一次
+        if (count.get() == 43200) {
+            count.set(0);
         }
         // 创建线程池
         MglThreadPoolExecutor executor = null;
