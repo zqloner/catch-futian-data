@@ -121,7 +121,7 @@ public class GoldenDragonQuartzJob {
         // 查询出金龙数据(昨天生成的)
         List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(yesterday);
         // 创建目录
-        String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         File file = new File(goldenDragonDir);
         if (!file.exists() && !file.isDirectory()) {
             FileUtil.forceDirectory(goldenDragonDir);
@@ -168,7 +168,7 @@ public class GoldenDragonQuartzJob {
             tool.initFtpClient();
             tool.CreateDirecroty(Gloables.GOLDENDRAGON_ZIP_PATH);
             boolean uploadFile = tool.uploadFile(Gloables.GOLDENDRAGON_ZIP_PATH,
-                    yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".zip", goldenDragonDir + ".zip");
+                    yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", goldenDragonDir + ".zip");
             // 删除文件夹
             if (uploadFile && file.exists()) {
                 CompressUtils.deleteDirectory(new File(goldenDragonDir));
