@@ -1,7 +1,12 @@
 package com.mgl.controller.changeview;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Title: ChangeViewController
@@ -14,23 +19,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/changeView")
 public class ChangeViewController {
 
+
+    /**
+     * 页面跳转
+     * @return
+     */
+    @GetMapping("/route")
+    public String pageChange(HttpServletRequest request, ModelMap map){
+        String path = request.getQueryString();
+        String[] paths = path.split("&");
+        String name = "";
+        if(paths !=null && paths.length>0){
+            if(paths[0].split("=")!=null && paths[0].split("=").length>=2){
+                name = paths[0].split("=")[1];for(int i=1;i<paths.length;i++){
+                    if(paths[i].split("=").length == 2) {
+                        map.put(paths[i].split("=")[0], paths[i].split("=")[1]);
+                    }
+                }
+            }
+        }
+        return "pages/"+name;
+    }
+
     @RequestMapping("/ftp")
     public String mvc1(){
         return "ftp";
-    }
-
-    @RequestMapping("/toGoldenDragonImport")
-    public String mvc2(){
-        return "golden-dragon-import";
-    }
-
-    @RequestMapping("/carInfo")
-    public String carInfo(){
-        return "futian-car-Info";
-    }
-
-    @RequestMapping("/totalTable")
-    public String totalTable(){
-        return "futian-tatal-table";
     }
 }
