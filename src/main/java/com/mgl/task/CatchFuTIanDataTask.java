@@ -7,21 +7,15 @@ import com.mgl.bean.carshop.MglCarshopTianfuData;
 import com.mgl.bean.carshop.MglCarshopTianfuDataBak;
 import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
-import com.mgl.bean.dto.GoldenDragonDto;
-import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.common.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
-import com.mgl.service.carshop.MglCarshopFutianDataDetailService;
 import com.mgl.service.carshop.MglCarshopTianfuDataBakService;
 import com.mgl.service.carshop.MglCarshopTianfuDataService;
-import com.mgl.service.golden.GoldenDragonService;
-import com.mgl.service.warns.MglCarshopStaticWarningService;
 import com.mgl.utils.compress.CompressUtils;
 import com.mgl.utils.csv.CsvExportUtil;
 import com.mgl.utils.file.FileUtil;
 import com.mgl.utils.ftp.ftpClientUtil.FtpTool;
 import com.mgl.utils.httpclient.HttpClientUtil;
-import com.mgl.utils.selfutil.MySelfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +28,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,10 +71,6 @@ public class CatchFuTIanDataTask {
     @Value("${ftp.password}")
     private String password;
 
-    private final static Map<String, String> map = new HashMap<>();
-    private String token = "";
-
-
     /**
      * 抓取数据   导出到csv和不存详情以及上传至FTP
      *
@@ -115,11 +103,9 @@ public class CatchFuTIanDataTask {
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                String fileName1 = 1000000 + car.getId() + "-" + params.get(Gloables.API_PARAM_CARID) + "-" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + Gloables.CSV_EXTENT;
-                String fileName = 1000000 + car.getId() + "-" + params.get(Gloables.API_PARAM_CARID) + Gloables.CSV_EXTENT;
-//                导出到csv
+                String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + params.get(Gloables.API_PARAM_CARID) + Gloables.CSV_EXTENT;
                 List<Map<String, Object>> datas = new ArrayList<>();
-                FileOutputStream newOs = new FileOutputStream(dir + "/" + fileName);
+                FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH+ fileName);
                 data.forEach(x -> {
 //                    每条数据的代码
                     Map<String, String> codes = x.getCodes();
@@ -195,7 +181,6 @@ public class CatchFuTIanDataTask {
                     datas.add(map);
                 });
 //                导出到csv
-//                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, os);
                 CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, newOs);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -207,21 +192,19 @@ public class CatchFuTIanDataTask {
         String[] extention = new String[]{Gloables.CSV_EXTENT};
         List<File> files = FileUtil.listFile(new File(dir), extention, true);
         if (cars.size() == files.size()) {
-            CompressUtils.zip(dir, dir + ".zip");
+            CompressUtils.zip(dir, dir + Gloables.ZIP_EXTENT);
         }
 //        FTP
         FtpTool tool = new FtpTool(host, port, username, password);
         tool.initFtpClient();
         tool.CreateDirecroty(Gloables.FUTIAN_ZIP_PATH);
-        boolean uploadFile = tool.uploadFile(Gloables.FUTIAN_ZIP_PATH, yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", dir + ".zip");
+        boolean uploadFile = tool.uploadFile(Gloables.FUTIAN_ZIP_PATH, yesterday.format(DateTimeFormatter.ofPattern(Gloables.DATE_FORMAT_YYYYMMDD)) + Gloables.ZIP_EXTENT, dir + Gloables.ZIP_EXTENT);
 //      删除文件夹
         if (uploadFile) {
             CompressUtils.deleteDirectory(new File(dir));
-            CompressUtils.doDeleteEmptyDir(dir + ".zip");
+            CompressUtils.doDeleteEmptyDir(dir + Gloables.ZIP_EXTENT);
         }
         System.out.println(yesterday + "日=============》数据抓取完毕");
     }
-
-
 
 }

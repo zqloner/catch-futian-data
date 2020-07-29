@@ -76,7 +76,7 @@ public class GoldenDragonTask {
      *
      * @throws Exception
      */
-    @Async
+//    @Async
 //    @Scheduled(cron = "0 30 21,22,23 23 * ? ")
     public void getGoldenDragonCars() throws Exception {
         List<CarGoldenDragonNumberDict> list = carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
@@ -117,7 +117,7 @@ public class GoldenDragonTask {
      *
      * @throws Exception
      */
-    @Async
+//    @Async
 //    @Scheduled(cron = "* 32-42 21,22,23 23 * ? ")
     public void secondGroupTask() throws Exception {
         totalGetDataByUrlByFtp(secondGroup);
@@ -129,7 +129,7 @@ public class GoldenDragonTask {
      *
      * @throws Exception
      */
-    @Async
+//    @Async
 //    @Scheduled(cron = "* 32-42 21,22,23 23 * ? ")
     public void thirdGroupTask() throws Exception {
         totalGetDataByUrlByFtp(thirdGroup);
@@ -141,7 +141,7 @@ public class GoldenDragonTask {
      *
      * @throws Exception
      */
-    @Async
+//    @Async
 //    @Scheduled(cron = "* 32-42 21,22,23 23 * ? ")
     public void fourthGroupTask() throws Exception {
         totalGetDataByUrlByFtp(fourthGroup);
@@ -153,7 +153,7 @@ public class GoldenDragonTask {
      *
      * @throws Exception
      */
-    @Async
+//    @Async
 //    @Scheduled(cron = "* 32-42 21,22,23 23 * ? ")
     public void fifthGroupTask() throws Exception {
         totalGetDataByUrlByFtp(fifthGroup);
