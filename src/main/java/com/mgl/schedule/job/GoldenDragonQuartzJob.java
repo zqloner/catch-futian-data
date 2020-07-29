@@ -23,7 +23,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -36,7 +35,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description TODO
@@ -76,26 +74,22 @@ public class GoldenDragonQuartzJob {
 
     private List<CarGoldenDragonNumberDict> numberDictList = null;
 
-    private AtomicInteger count = new AtomicInteger(0);
-
     /**
      * 定时任务抓取数据
      */
-    @Scheduled(cron = "* * 5-23 * * ? ")
-    @Async
+     @Scheduled(cron = "* * * * * ? ")
     public void getGoldenDragonData(){
-        if (count.get() == 0 || CollectionUtils.isEmpty(numberDictList)) {
-            numberDictList = carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
-        }
-        count.getAndIncrement();
-        if (CollectionUtils.isEmpty(numberDictList)) {
-            return;
-        }
-        // 每隔12小时查询一次
-        if (count.get() == 43200) {
-            count.set(0);
-        }
-        // 创建线程池
+        // 保证车辆数据词典不为空
+         String updateQueryTime = "00:00";
+         if (updateQueryTime.equals(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")))
+                 || CollectionUtils.isEmpty(numberDictList)) {
+             numberDictList = carGoldenDragonNumberDictService.list(new QueryWrapper<>(new CarGoldenDragonNumberDict().setCarFlag(0)));
+             log.info("【{}】查询金龙数据词典",LocalDateTime.now());
+         }
+         if (CollectionUtils.isEmpty(numberDictList)) {
+             return;
+         }
+        // 实时生成金龙数据,get请求url有限制，所以采用多线程方式
         MglThreadPoolExecutor executor = null;
         try {
             executor = new MglThreadPoolExecutor(4,32,30,"金龙实时数据请求");
@@ -118,14 +112,15 @@ public class GoldenDragonQuartzJob {
             if (executor != null && !executor.isShutdown()) {
                 executor.shutdown();
             }
+
         }
+
     }
 
     /**
      * 定时任务生成csv
      */
     @Scheduled(cron = "0 0 1 * * ? ")
-    @Async
     public void uploadGoldenDragonData(){
         // 生成昨天的csv
         LocalDate today = LocalDate.now();
@@ -141,7 +136,7 @@ public class GoldenDragonQuartzJob {
         // 线程池处理
         MglThreadPoolExecutor poolExecutor = null;
         try {
-            poolExecutor = new MglThreadPoolExecutor(8,128,10,"金龙数据生成csv");
+            poolExecutor = new MglThreadPoolExecutor(32,256,10,"金龙数据生成csv");
             Set<Callable<Map>> callableSet = new HashSet<>(2000);
             for (int i = 0; i < carVinList.size(); i++) {
                 int finalI = i;
