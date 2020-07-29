@@ -23,4 +23,12 @@ public interface GoldenDragonService extends IService<GoldenDragon> {
      * @return 集合
      */
     List<GoldenDragon> queryDataTheDayBrfore(LocalDate yesterday);
+
+    /**
+     * 查询汽车
+     * @param carVin
+     * @param yesterday
+     * @return
+     */
+    List<GoldenDragon> queryDataByCarVin(String carVin, LocalDate yesterday);
 }

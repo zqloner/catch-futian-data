@@ -124,54 +124,38 @@ public class GoldenDragonQuartzJob {
     /**
      * 定时任务生成csv
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 0 1 * * ? ")
     @Async
     public void uploadGoldenDragonData(){
+        // 生成昨天的csv
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
-        // 查询出金龙数据(昨天生成的)
-        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataTheDayBrfore(yesterday);
         // 创建目录
         String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         File file = new File(goldenDragonDir);
         if (!file.exists() && !file.isDirectory()) {
             FileUtil.forceDirectory(goldenDragonDir);
         }
-        // 创建线程池
+        // 由于数据量太大，容易造成OOM,所以每辆汽车单独查询
+        List<String> carVinList = carGoldenDragonNumberDictService.queryCarVinList();
+        // 线程池处理
         MglThreadPoolExecutor poolExecutor = null;
         try {
-            poolExecutor = new MglThreadPoolExecutor(4,128,30,"金龙数据生成csv");
-            // 数据分组（每一辆车分一组）
-            List<String> groupList = new ArrayList<>();
-            goldenDragonList.forEach(goldenDragon -> {
-                if (!groupList.contains(goldenDragon.getVin())) {
-                    groupList.add(goldenDragon.getVin());
-                }
-            });
-            List<List<GoldenDragon>> list = new ArrayList<>();
-            for (String str : groupList) {
-                List<GoldenDragon> x = new ArrayList<>();
-                for (GoldenDragon entity : goldenDragonList) {
-                    if (str.equals(entity.getVin())) {
-                        x.add(entity);
-                    }
-                }
-                list.add(x);
-            }
-            Set<Callable<Map>> callables = new HashSet<>();
-            for (int i = 0;i < list.size(); i++) {
+            poolExecutor = new MglThreadPoolExecutor(8,128,10,"金龙数据生成csv");
+            Set<Callable<Map>> callableSet = new HashSet<>(2000);
+            for (int i = 0; i < carVinList.size(); i++) {
                 int finalI = i;
-                callables.add(() -> {
-                    Map map = new HashMap();
-                    map.put("group-" + finalI,generateGoldenDragonCsv(list.get(finalI), goldenDragonDir));
-                    return map;
+                callableSet.add(() -> {
+                   Map map = new HashMap();
+                   map.put("group-" + finalI,generateGoldenDragonCsv(carVinList.get(finalI), goldenDragonDir, yesterday));
+                   return map;
                 });
             }
-            poolExecutor.invokeAll(callables);
+            poolExecutor.invokeAll(callableSet);
             // 压缩
             String[] extention = new String[]{Gloables.CSV_EXTENT};
             List<File> files = FileUtil.listFile(new File(goldenDragonDir), extention, true);
-            if (list.size() == files.size()) {
+            if (carVinList.size() == files.size()) {
                 CompressUtils.zip(goldenDragonDir, goldenDragonDir + ".zip");
             }
             // FTP
@@ -194,14 +178,25 @@ public class GoldenDragonQuartzJob {
                 poolExecutor.shutdown();
             }
         }
+
     }
 
     /**
      * 生成金龙的csv
-     * @param goldenDragonList 金龙数据
+     * @param carVin 金龙数据
+     * @param goldenDragonDir 文件夹路径
+     * @param yesterday 时间
      * @return csv
      */
-    private Object generateGoldenDragonCsv(List<GoldenDragon> goldenDragonList, String goldenDragonDir) {
+    private Object generateGoldenDragonCsv(String carVin, String goldenDragonDir, LocalDate yesterday) {
+        // 根据汽车Vin查询数据
+        List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataByCarVin(carVin,yesterday);
+        // 为了不影响整体流程，对空集合处理一下
+        if (CollectionUtils.isEmpty(goldenDragonList)) {
+            GoldenDragon goldenDragon = new GoldenDragon();
+            goldenDragon.setVin(carVin);
+            goldenDragonList.add(goldenDragon);
+        }
         // 生成csv
         List<Map<String, Object>> maps = new ArrayList<>();
         goldenDragonList.forEach(entity -> {

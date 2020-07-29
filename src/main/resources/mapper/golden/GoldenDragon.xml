@@ -41,4 +41,7 @@
         select * from golden_dragon where date_format(data_current_time,'%Y-%m-%d') = #{yesterday}
     </select>
 
+    <select id="findDataByCarVin" resultMap="BaseResultMap" >
+        select * from golden_dragon where vin = #{carVin} and date_format(data_current_time,'%Y-%m-%d') = #{yesterday}
+    </select>
 </mapper>

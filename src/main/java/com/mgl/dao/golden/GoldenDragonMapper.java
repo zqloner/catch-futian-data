@@ -27,4 +27,12 @@ public interface GoldenDragonMapper extends BaseMapper<GoldenDragon> {
      * @return 集合
      */
     List<GoldenDragon> queryDataTheDayBefore(@Param("yesterday") LocalDate yesterday);
+
+    /**
+     * 根据汽车vin查询查询数据
+     * @param carVin 汽车vin
+     * @param yesterday 时间
+     * @return 汽车数据
+     */
+    List<GoldenDragon> findDataByCarVin(@Param("carVin") String carVin, @Param("yesterday") LocalDate yesterday);
 }

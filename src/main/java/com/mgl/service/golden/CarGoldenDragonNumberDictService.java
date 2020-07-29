@@ -3,6 +3,8 @@ package com.mgl.service.golden;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mgl.bean.golden.CarGoldenDragonNumberDict;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -14,4 +16,10 @@ import com.mgl.bean.golden.CarGoldenDragonNumberDict;
 public interface CarGoldenDragonNumberDictService extends IService<CarGoldenDragonNumberDict> {
 
     CarGoldenDragonNumberDict findByCarVin(String carVin);
+
+    /**
+     * 查询汽车Vin
+     * @return
+     */
+    List<String> queryCarVinList();
 }

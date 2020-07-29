@@ -33,4 +33,9 @@ public class GoldenDragonServiceImpl extends ServiceImpl<GoldenDragonMapper, Gol
     public List<GoldenDragon> queryDataTheDayBrfore(LocalDate yesterday) {
         return dragonMapper.queryDataTheDayBefore(yesterday);
     }
+
+    @Override
+    public List<GoldenDragon> queryDataByCarVin(String carVin, LocalDate yesterday) {
+        return dragonMapper.findDataByCarVin(carVin, yesterday);
+    }
 }

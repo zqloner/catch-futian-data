@@ -7,6 +7,7 @@ import com.mgl.service.golden.CarGoldenDragonNumberDictService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -25,6 +26,11 @@ public class CarGoldenDragonNumberDictServiceImpl extends ServiceImpl<CarGoldenD
     @Override
     public CarGoldenDragonNumberDict findByCarVin(String carVin) {
         return carGoldenDragonNumberDictMapper.findByVinName(carVin);
+    }
+
+    @Override
+    public List<String> queryCarVinList() {
+        return carGoldenDragonNumberDictMapper.findCarVin();
     }
 
 }
