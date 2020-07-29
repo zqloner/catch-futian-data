@@ -725,7 +725,7 @@ public class CatchFuTIanDataTaskCopy {
      */
 //    @Scheduled(cron = "* 0-10 14 * * ? ")
 //    @Scheduled(cron = "* * * * * ? ")
-    @Async
+//    @Async
     public void getGoldenDragonData() throws Exception {
         List<String> cars = new ArrayList<>();
         cars.add("LA9CB22D3KALA6162");
@@ -864,7 +864,7 @@ public class CatchFuTIanDataTaskCopy {
      */
 //    @Scheduled(cron = "* 42-52 18 21 * ? ")
 //    @Scheduled(cron = "* * * * * ? ")
-    @Async
+//    @Async
     public void getGoldenDragonDataByFtp() throws Exception {
         List<String> cars = new ArrayList<>();
         cars.add("LA9CB22D3KALA6162");
