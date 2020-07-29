@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod #默认为开发环境
+    active: dev #默认为开发环境
 
 server:
   port: 9999
@@ -11,7 +11,7 @@ server:
 logging:
   level:
     root: info #日志配置DEBUG,INFO,WARN,ERROR
-    com.brightease.bju: debug
+    com.mgl: info
     org.springframework: WARN
     org.spring.springboot.dao: info
   config: classpath:logback-boot.xml

@@ -77,7 +77,6 @@ public class CatchFuTIanDataTask {
      * @throws Exception
      */
     @Scheduled(cron = "0 0 0 * * ? ")
-    @Async
     public void produceTopicNoDetail() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.plusDays(-1);
@@ -88,7 +87,10 @@ public class CatchFuTIanDataTask {
         params.put(Gloables.API_PARAM_DATE, yesterday.toString());
 //        强制创建目录
         String dir = ftpZipPath + "/" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        FileUtil.forceDirectory(dir);
+        File file = new File(dir);
+        if (!file.exists()) {
+            FileUtil.forceDirectory(dir);
+        }
         for (CarNumberDict car : cars) {
             try {
                 params.put(Gloables.API_PARAM_CARID, car.getCarVin());
@@ -105,7 +107,7 @@ public class CatchFuTIanDataTask {
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
                 String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + params.get(Gloables.API_PARAM_CARID) + Gloables.CSV_EXTENT;
                 List<Map<String, Object>> datas = new ArrayList<>();
-                FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH+ fileName);
+                FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH + fileName);
                 data.forEach(x -> {
 //                    每条数据的代码
                     Map<String, String> codes = x.getCodes();
