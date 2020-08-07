@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 /**
  * @Description TODO
@@ -134,7 +136,7 @@ public class GoldenDragonQuartzJob {
             FileUtil.forceDirectory(goldenDragonDir);
         }
         // 由于数据量太大，容易造成OOM,所以每辆汽车单独查询
-        List<String> carVinList = carGoldenDragonNumberDictService.queryCarVinList();
+        List<CarGoldenDragonNumberDict> carVinList = carGoldenDragonNumberDictService.queryCarVinList();
         // 线程池处理
         MglThreadPoolExecutor poolExecutor = null;
         try {
@@ -151,12 +153,14 @@ public class GoldenDragonQuartzJob {
                    return map;
                 });
             }
-            poolExecutor.invokeAll(callableSet);
+            List<Future<Map>> futures = poolExecutor.invokeAll(callableSet);
+            log.info("futures数量为：{}",futures.size());
             countDownLatch.await();
             log.info("csv完成，开始上传ftp,时间：【{}】", LocalDateTime.now());
             // 压缩
             String[] extention = new String[]{Gloables.CSV_EXTENT};
             List<File> files = FileUtil.listFile(new File(goldenDragonDir), extention, true);
+            log.warn("csv文件数目为：{}",files.size());
             if (carVinList.size() == files.size()) {
                 CompressUtils.zip(goldenDragonDir, goldenDragonDir + ".zip");
             }
@@ -185,20 +189,23 @@ public class GoldenDragonQuartzJob {
 
     /**
      * 生成金龙的csv
-     * @param carVin 金龙数据
+     * @param car 金龙数据
      * @param goldenDragonDir 文件夹路径
      * @param yesterday 时间
      * @param countDownLatch
      * @return csv
      */
-    private Object generateGoldenDragonCsv(String carVin, String goldenDragonDir, LocalDate yesterday, CountDownLatch countDownLatch) {
-        try {
+    private Object generateGoldenDragonCsv(CarGoldenDragonNumberDict car, String goldenDragonDir,
+                                           LocalDate yesterday,
+                                           CountDownLatch countDownLatch) throws Exception {
+
             // 根据汽车Vin查询数据
-            List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataByCarVin(carVin,yesterday);
+            List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataByCarVin(car.getCarVin(),yesterday);
             // 为了不影响整体流程，对空集合处理一下
             if (CollectionUtils.isEmpty(goldenDragonList)) {
+                log.warn("汽车数据为空，vin:{},时间：{}",car.getCarVin()+"-"+car.getCarId(),yesterday);
                 GoldenDragon goldenDragon = new GoldenDragon();
-                goldenDragon.setVin(carVin);
+                goldenDragon.setVin(car.getCarVin());
                 goldenDragonList.add(goldenDragon);
             }
             // 生成csv
@@ -206,10 +213,15 @@ public class GoldenDragonQuartzJob {
             goldenDragonList.forEach(entity -> {
                 maps.add(BeanAndMap.beanToMap(entity));
             });
-            FileOutputStream os =
-                    new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
+        FileOutputStream os = null;
+        try {
+            os = new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
             CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
+            log.info("csv生成成功，vin:{}",car.getCarVin()+"-"+car.getCarId());
         } catch (Exception e) {
+            log.error("csv生成出错！,vin:{}",car.getCarVin()+"-"+car.getCarId(),e);
+            os = new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
+            CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
             throw new MglRuntimeException("金龙生成csv出错！", e);
         } finally {
             countDownLatch.countDown();
@@ -223,17 +235,22 @@ public class GoldenDragonQuartzJob {
      * @return
      */
     private synchronized Object buildData(List<CarGoldenDragonNumberDict> cars) {
-        String token = restTemplate.getForObject(Gloables.GOLD_TOKEN_URL,String.class);
-        log.info("[token]:{}",token);
-        List<String> carVin = new ArrayList<>();
-        cars.forEach(car -> {
-            carVin.add(car.getCarVin());
-        });
-        String carNum = StringUtils.join(carVin,",");
-        String requestUrl = Gloables.GOLD_DATA_BASE_URL + carNum + Gloables.GOLD_PARAMS_TYPES + token;
-        JSONObject resultData = restTemplate.getForObject(requestUrl,JSONObject.class);
-        log.info("[resultData]:{}",resultData);
-        GoldenDragonDto dto = JSONObject.toJavaObject(resultData, GoldenDragonDto.class);
+        GoldenDragonDto dto = null;
+        try {
+            String token = restTemplate.getForObject(Gloables.GOLD_TOKEN_URL,String.class);
+            log.info("[token]:{}",token);
+            List<String> carVin = new ArrayList<>();
+            cars.forEach(car -> {
+                carVin.add(car.getCarVin());
+            });
+            String carNum = StringUtils.join(carVin,",");
+            String requestUrl = Gloables.GOLD_DATA_BASE_URL + carNum + Gloables.GOLD_PARAMS_TYPES + token;
+            JSONObject resultData = restTemplate.getForObject(requestUrl,JSONObject.class);
+            log.info("[resultData]:{}",resultData);
+            dto = JSONObject.toJavaObject(resultData, GoldenDragonDto.class);
+        } catch (RestClientException e) {
+            log.error("请求金龙实时数据出错！",e);
+        }
         return assembleData(dto.getData());
     }
 
