@@ -85,6 +85,7 @@ public class FtpTool {
         } catch (Exception e) {
             logger.info("上传文件【失败】");
             e.printStackTrace();
+            return false;
         } finally {
             if (ftpClient.isConnected()) {
                 try {
