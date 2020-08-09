@@ -2,10 +2,7 @@ package com.mgl.sdk.thread;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,7 +21,7 @@ public class MglThreadPoolExecutor extends ThreadPoolExecutor {
      * @param threadName 线程名字
      */
     public MglThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime,String threadName) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime,TimeUnit.SECONDS,new SynchronousQueue<Runnable>(),
+        super(corePoolSize, maximumPoolSize, keepAliveTime,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2000),
                 new InnerThreadFactory(threadName),(Runnable r, ThreadPoolExecutor executor) -> {
                     try {
                         executor.getQueue().put(r);

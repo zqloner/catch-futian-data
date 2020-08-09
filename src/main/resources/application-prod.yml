@@ -11,7 +11,7 @@ brightease:
 spring:
   datasource:
     url: jdbc:mysql://192.168.0.111:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username:  zhangqi
+    username: zhangqi
     password: Zhangqi@1234
     druid:
       initial-size: 5 #连接池初始化大小
