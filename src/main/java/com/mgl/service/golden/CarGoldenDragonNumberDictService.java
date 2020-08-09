@@ -21,5 +21,5 @@ public interface CarGoldenDragonNumberDictService extends IService<CarGoldenDrag
      * 查询汽车Vin
      * @return
      */
-    List<CarGoldenDragonNumberDict> queryCarVinList();
+    List<String> queryCarVinList();
 }

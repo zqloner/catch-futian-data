@@ -3,7 +3,7 @@ spring:
     active: dev #默认为开发环境
 
 server:
-  port: 9527
+  port: 9999
   servlet:
     context-path: /
 
@@ -22,6 +22,6 @@ logging:
 mybatis-plus:
   mapper-locations: classpath:mapper/*/*.xml
   type-aliases-package: com.mgl.bean.*
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 

@@ -36,8 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @Description TODO
@@ -77,10 +76,12 @@ public class GoldenDragonQuartzJob {
 
     private List<CarGoldenDragonNumberDict> numberDictList = null;
 
+    private static final List<String> GOLDEN_DRAGON_CSV_LIST = new CopyOnWriteArrayList<>();
+
     /**
      * 定时任务抓取数据
      */
-    @Scheduled(cron = "* * * * * ? ")
+    @Scheduled(cron = "* * 5-23 * * ? ")
     public void getGoldenDragonData(){
         // 保证车辆数据词典不为空
          String updateQueryTime = "00:00";
@@ -136,26 +137,30 @@ public class GoldenDragonQuartzJob {
             FileUtil.forceDirectory(goldenDragonDir);
         }
         // 由于数据量太大，容易造成OOM,所以每辆汽车单独查询
-        List<CarGoldenDragonNumberDict> carVinList = carGoldenDragonNumberDictService.queryCarVinList();
+        List<String> carVinList = carGoldenDragonNumberDictService.queryCarVinList();
+        // 将汽车数量放入全局list中
+        GOLDEN_DRAGON_CSV_LIST.addAll(carVinList);
         // 线程池处理
         MglThreadPoolExecutor poolExecutor = null;
         try {
-            // 阻塞下线程，确保所有的csv都生成完
-            CountDownLatch countDownLatch = new CountDownLatch(carVinList.size());
             poolExecutor = new MglThreadPoolExecutor(16,128,10,"金龙数据生成csv");
             Set<Callable<Map>> callableSet = new HashSet<>(2000);
             for (int i = 0; i < carVinList.size(); i++) {
                 int finalI = i;
                 callableSet.add(() -> {
                    Map map = new HashMap();
-                   map.put("group-" + finalI,generateGoldenDragonCsv(carVinList.get(finalI), goldenDragonDir,
-                           yesterday,countDownLatch));
+                   map.put("group-" + finalI,generateGoldenDragonCsv(carVinList.get(finalI), goldenDragonDir,yesterday));
                    return map;
                 });
             }
-            List<Future<Map>> futures = poolExecutor.invokeAll(callableSet);
-            log.info("futures数量为：{}",futures.size());
-            countDownLatch.await();
+            poolExecutor.invokeAll(callableSet);
+            // 如果csv数量与汽车数量不同，则将没有生成的汽车在重新生成一遍
+            log.warn("汽车还有：{}没生成csv", GOLDEN_DRAGON_CSV_LIST.size());
+            while (GOLDEN_DRAGON_CSV_LIST.size() != 0) {
+                GOLDEN_DRAGON_CSV_LIST.forEach(carVin -> {
+                    generateGoldenDragonCsv(carVin, goldenDragonDir, yesterday);
+                });
+            }
             log.info("csv完成，开始上传ftp,时间：【{}】", LocalDateTime.now());
             // 压缩
             String[] extention = new String[]{Gloables.CSV_EXTENT};
@@ -187,25 +192,24 @@ public class GoldenDragonQuartzJob {
 
     }
 
+
     /**
      * 生成金龙的csv
-     * @param car 金龙数据
+     * @param carVin 金龙数据
      * @param goldenDragonDir 文件夹路径
      * @param yesterday 时间
-     * @param countDownLatch
      * @return csv
      */
-    private Object generateGoldenDragonCsv(CarGoldenDragonNumberDict car, String goldenDragonDir,
-                                           LocalDate yesterday,
-                                           CountDownLatch countDownLatch) throws Exception {
+    private Object generateGoldenDragonCsv(String carVin, String goldenDragonDir,
+                                           LocalDate yesterday) {
 
             // 根据汽车Vin查询数据
-            List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataByCarVin(car.getCarVin(),yesterday);
+            List<GoldenDragon> goldenDragonList = goldenDragonService.queryDataByCarVin(carVin,yesterday);
             // 为了不影响整体流程，对空集合处理一下
             if (CollectionUtils.isEmpty(goldenDragonList)) {
-                log.warn("汽车数据为空，vin:{},时间：{}",car.getCarVin()+"-"+car.getCarId(),yesterday);
+                log.warn("汽车数据为空，vin:{},时间：{}",carVin,yesterday);
                 GoldenDragon goldenDragon = new GoldenDragon();
-                goldenDragon.setVin(car.getCarVin());
+                goldenDragon.setVin(carVin);
                 goldenDragonList.add(goldenDragon);
             }
             // 生成csv
@@ -217,14 +221,11 @@ public class GoldenDragonQuartzJob {
         try {
             os = new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
             CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
-            log.info("csv生成成功，vin:{}",car.getCarVin()+"-"+car.getCarId());
+            log.info("csv生成成功，vin:{}",carVin);
+            GOLDEN_DRAGON_CSV_LIST.remove(carVin);
+            log.info("还剩：{}辆汽车没生成csv",GOLDEN_DRAGON_CSV_LIST.size());
         } catch (Exception e) {
-            log.error("csv生成出错！,vin:{}",car.getCarVin()+"-"+car.getCarId(),e);
-            os = new FileOutputStream(goldenDragonDir + "/" + goldenDragonList.get(0).getVin() + Gloables.CSV_EXTENT);
-            CsvExportUtil.doExport(maps, Gloables.GOLDEN_TITLE, Gloables.GOLDEN_KEYS, os);
-            throw new MglRuntimeException("金龙生成csv出错！", e);
-        } finally {
-            countDownLatch.countDown();
+            log.error("csv生成出错！,vin:{}",carVin,e);
         }
         return "csv generation successful";
     }

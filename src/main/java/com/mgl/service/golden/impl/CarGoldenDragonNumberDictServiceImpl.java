@@ -29,7 +29,7 @@ public class CarGoldenDragonNumberDictServiceImpl extends ServiceImpl<CarGoldenD
     }
 
     @Override
-    public List<CarGoldenDragonNumberDict> queryCarVinList() {
+    public List<String> queryCarVinList() {
         return carGoldenDragonNumberDictMapper.findCarVin();
     }
 

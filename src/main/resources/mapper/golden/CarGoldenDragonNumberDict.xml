@@ -27,7 +27,7 @@
         select * from car_golden_dragon_number_dict where car_vin = #{carVin} and car_flag = 0
     </select>
 
-    <select id="findCarVin" resultMap="BaseResultMap">
-        select * from car_golden_dragon_number_dict where car_flag = 0
+    <select id="findCarVin" resultType="string">
+        select car_vin from car_golden_dragon_number_dict where car_flag = 0
     </select>
 </mapper>
