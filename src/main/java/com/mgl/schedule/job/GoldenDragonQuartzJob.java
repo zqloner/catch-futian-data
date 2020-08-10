@@ -124,12 +124,12 @@ public class GoldenDragonQuartzJob {
     /**
      * 定时任务生成csv
      */
-    @Scheduled(cron = "0 0 1 * * ? ")
+    @Scheduled(cron = "0 40 8 * * ? ")
     public void uploadGoldenDragonData(){
         log.info("【{}】开始生成金龙数据csv",LocalDateTime.now());
         // 生成昨天的csv
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.plusDays(-1);
+        LocalDate yesterday = today.plusDays(-2);
         // 创建目录
         String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         File file = new File(goldenDragonDir);
@@ -171,7 +171,14 @@ public class GoldenDragonQuartzJob {
             }
             // FTP
             FtpTool tool = new FtpTool(host, port, username, password);
-            tool.initFtpClient();
+            boolean isConnection = tool.initFtpClient();
+            // 保证ftp服务器能连接上
+            while (!isConnection) {
+                isConnection = tool.initFtpClient();
+                if (isConnection) {
+                    break;
+                }
+            }
             tool.CreateDirecroty(Gloables.GOLDENDRAGON_ZIP_PATH);
             boolean uploadFile = tool.uploadFile(Gloables.GOLDENDRAGON_ZIP_PATH,
                     yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".zip", goldenDragonDir + ".zip");

@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.SocketException;
 
 public class FtpTool {
@@ -36,7 +35,7 @@ public class FtpTool {
     /**
      * 初始化ftp服务器
      */
-    public void initFtpClient() {
+    public boolean initFtpClient() {
         ftpClient = new FTPClient();
         ftpClient.setControlEncoding("GBK");
         try {
@@ -49,10 +48,9 @@ public class FtpTool {
                 logger.info("连接ftp服务器【失败】:" + this.hostname + ":" + this.port);
             }
             logger.info("连接ftp服务器【成功】:" + this.hostname + ":" + this.port);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -84,7 +82,7 @@ public class FtpTool {
             logger.info("上传文件【成功】");
         } catch (Exception e) {
             logger.info("上传文件【失败】");
-            e.printStackTrace();
+            return false;
         } finally {
             if (ftpClient.isConnected()) {
                 try {
