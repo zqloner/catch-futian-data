@@ -1,9 +1,9 @@
 spring:
   profiles:
-    active: dev #默认为开发环境
+    active: prod #默认为开发环境
 
 server:
-  port: 9999
+  port: 5230
   servlet:
     context-path: /
 

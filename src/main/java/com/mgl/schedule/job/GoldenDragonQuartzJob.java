@@ -81,7 +81,7 @@ public class GoldenDragonQuartzJob {
     /**
      * 定时任务抓取数据
      */
-    @Scheduled(cron = "* * 5-23 * * ? ")
+    @Scheduled(cron = "* * 5-23 ? * SAT-SUN")
     public void getGoldenDragonData(){
         // 保证车辆数据词典不为空
          String updateQueryTime = "00:00";
@@ -124,12 +124,12 @@ public class GoldenDragonQuartzJob {
     /**
      * 定时任务生成csv
      */
-    @Scheduled(cron = "0 40 8 * * ? ")
+    @Scheduled(cron = "0 0 1 ? * SUN-MON")
     public void uploadGoldenDragonData(){
         log.info("【{}】开始生成金龙数据csv",LocalDateTime.now());
         // 生成昨天的csv
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.plusDays(-2);
+        LocalDate yesterday = today.plusDays(-1);
         // 创建目录
         String goldenDragonDir = goldenDragonCsvPath + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         File file = new File(goldenDragonDir);
