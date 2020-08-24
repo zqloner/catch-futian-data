@@ -4,6 +4,7 @@ package com.mgl.controller.golden;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.common.Gloables;
+import com.mgl.service.golden.CarGoldenDragonNumberDictService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.utils.compress.CompressUtils;
 import com.mgl.utils.csv.CsvExportUtil;
@@ -11,10 +12,10 @@ import com.mgl.utils.file.FileUtil;
 import com.mgl.utils.props.BeanAndMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -42,6 +43,9 @@ public class GoldenDragonController {
     @Resource
     private GoldenDragonService goldenDragonService;
 
+    @Autowired
+    private CarGoldenDragonNumberDictService carGoldenDragonNumberDictService;
+
     @Value("${brightease.goldenDragonCsvPath}")
     private String goldenDragonCsvPath;
 
@@ -54,13 +58,9 @@ public class GoldenDragonController {
     @ResponseBody
     public void exportExcel(HttpServletResponse response, HttpServletRequest request) {
         try {
-            List<String> cars = new ArrayList<>();
-            cars.add("LA9CB22D3KALA6162");
-            cars.add("LA6C7GAB1JC304865");
-            cars.add("LA6C7GAB2JB201959");
-            cars.add("LA9CB22D0K0LA6058");
-            cars.add("LA6C7K1B7JB201894");
-//            创建文件夹
+            // 由于数据量太大，容易造成OOM,所以每辆汽车单独查询
+            List<String> cars = carGoldenDragonNumberDictService.queryCarVinList();
+            // 创建文件夹
             File file = new File(goldenDragonCsvPath);
             if (!file.exists()) {
                 file.mkdir();
