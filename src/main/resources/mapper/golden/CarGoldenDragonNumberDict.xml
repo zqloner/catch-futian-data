@@ -30,4 +30,7 @@
     <select id="findCarVin" resultType="string">
         select car_vin from car_golden_dragon_number_dict where car_flag = 0
     </select>
+    <select id="getCarsInfo" resultType="java.lang.String">
+        select car_vin from car_golden_dragon_number_dict
+    </select>
 </mapper>

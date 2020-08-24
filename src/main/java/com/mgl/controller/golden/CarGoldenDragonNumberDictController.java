@@ -1,6 +1,7 @@
 package com.mgl.controller.golden;
 
 
+import com.mgl.bean.carshop.CarNumberDict;
 import com.mgl.bean.golden.CarGoldenDragonNumberDict;
 import com.mgl.common.Gloables;
 import com.mgl.service.golden.CarGoldenDragonNumberDictService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -55,5 +57,23 @@ public class CarGoldenDragonNumberDictController {
             x.setCarFlag(Gloables.DELETE_FLAG);
         });
         return service.saveBatch(list) ? CommonResult.success("添加成功！共导入" + list.size() + "条数据") : CommonResult.failed("导入失败");
+    }
+
+    /**
+     * 导出
+     *
+     * @param response
+     */
+    @RequestMapping("/exportExcel")
+    public void exportExcel(HttpServletResponse response) {
+        List<CarGoldenDragonNumberDict> list = service.list(null);
+        ExcelUtils.createExcel(response, list, CarGoldenDragonNumberDict.class, "gold-cars-info.xlsx");
+    }
+
+
+    @RequestMapping("/getCarsInfo")
+    @ResponseBody
+    public CommonResult getCarsInfo() {
+        return CommonResult.success(service.getCarsInfo());
     }
 }

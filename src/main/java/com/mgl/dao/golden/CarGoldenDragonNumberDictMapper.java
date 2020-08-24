@@ -24,4 +24,6 @@ public interface CarGoldenDragonNumberDictMapper extends BaseMapper<CarGoldenDra
      * @return
      */
     List<String> findCarVin();
+
+    List<String> getCarsInfo();
 }

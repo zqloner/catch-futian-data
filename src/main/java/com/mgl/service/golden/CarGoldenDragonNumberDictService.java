@@ -22,4 +22,6 @@ public interface CarGoldenDragonNumberDictService extends IService<CarGoldenDrag
      * @return
      */
     List<String> queryCarVinList();
+
+    List<String> getCarsInfo();
 }

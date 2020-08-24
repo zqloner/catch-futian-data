@@ -1,6 +1,10 @@
 spring:
   profiles:
     active: dev #默认为开发环境
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
 
 server:
   port: 8787
@@ -24,4 +28,5 @@ mybatis-plus:
   type-aliases-package: com.mgl.bean.*
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 

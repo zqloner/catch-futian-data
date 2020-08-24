@@ -3,13 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>福田汽车导入</title>
+    <title>福田汽车信息</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css" crossorigin="anonymous">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="/static/bootstrap/js/jquery-1.10.1.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
-<form action="/carNumberDict/import" enctype="multipart/form-data" method="post">
+<script type="application/javascript">
+    function exportCars() {
+        window.location.href = '/carNumberDict/exportExcel';
+    }
+
+    function getCarsInfo() {
+        window.location.href = '/carNumberDict/getCarsInfo';
+    }
+</script>
+<a style="margin: 20px;font-size: 16px;color: blue" href="http://192.168.0.110/templates/catch-futian-data/car-info-detail.xlsx" download>下载导入模板</a>
+<form class="form-horizontal" action="/carNumberDict/import" enctype="multipart/form-data" method="post" style="margin: 20px">
     <input type="file" name="file"><br><br>
-    <input type="submit" value="上传">
-    <input type="reset" value="重置">
+    <button type="submit" class="btn btn-success">上传</button>
+    <button type="reset" class="btn btn-default">重置</button>
+    <button type="button" onclick="exportCars()" class="btn btn-info">导出车辆信息</button>
+    <button type="button" onclick="getCarsInfo()" class="btn btn-primary">查看车辆信息</button>
 </form>
 </body>
 </html>

@@ -33,4 +33,8 @@ public class CarGoldenDragonNumberDictServiceImpl extends ServiceImpl<CarGoldenD
         return carGoldenDragonNumberDictMapper.findCarVin();
     }
 
+    @Override
+    public List<String> getCarsInfo() {
+        return carGoldenDragonNumberDictMapper.getCarsInfo();
+    }
 }
