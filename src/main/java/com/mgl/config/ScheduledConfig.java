@@ -1,4 +1,4 @@
-package com.mgl.sdk.config;
+package com.mgl.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
