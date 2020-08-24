@@ -30,7 +30,6 @@ import org.springframework.web.client.RestClientException;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
