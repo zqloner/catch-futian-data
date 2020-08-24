@@ -39,8 +39,6 @@ public interface Gloables {
     //    zipPath
     String FUTIAN_ZIP_PATH = "/福田/国内";
 
-    //    报警临界值
-    Double WORINING_VALUE = 40D;
 
     String GOLD_TOKEN_URL = "http://106.13.23.167:9095/api?v=1.0&ak=12345001";
     String GOLD_DATA_BASE_URL = "http://106.13.23.167:9095/VehicleData/GetByVehicleVIN?vehicles=";
