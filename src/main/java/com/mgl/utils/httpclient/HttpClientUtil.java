@@ -73,7 +73,8 @@ public class HttpClientUtil {
                 logger.info("请求失败!");
             }
         } catch (Exception e) {
-            logger.info("请求失败!");
+            e.printStackTrace();
+            logger.info("请求失败!",e.getMessage());
             return uri.toString();
 //            logger.error(ExceptionUtils.getStackTrace(e));
         } finally {

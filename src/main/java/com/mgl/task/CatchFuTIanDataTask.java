@@ -1,5 +1,7 @@
 package com.mgl.task;
 
+import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.carshop.CarNumberDict;
@@ -21,11 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,10 +51,6 @@ public class CatchFuTIanDataTask {
 
     private static final Logger logger = LoggerFactory.getLogger(CatchFuTIanDataTask.class);
 
-    @Resource
-    private MglCarshopTianfuDataService mglCarshopTianfuDataService;
-    @Autowired
-    private MglCarshopTianfuDataBakService mglCarshopTianfuDataBakService;
     @Resource
     private CarNumberDictService carNumberDictService;
 
@@ -74,9 +75,16 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    // @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopicNoDetail() throws Exception {
-        LocalDate today = LocalDate.now();
+        List<LocalDate> localDates = new ArrayList<>();
+        localDates.add(LocalDate.now());
+        for (int i = 0; i < localDates.size(); i++) {
+            getFuTianData(localDates.get(i));
+        }
+    }
+
+    private void getFuTianData(LocalDate today) throws IOException {
         LocalDate yesterday = today.plusDays(-1);
         String url = Gloables.API_URL;
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
@@ -97,9 +105,6 @@ public class CatchFuTIanDataTask {
                     logger.info("重新获取数据中......");
                     content = HttpClientUtil.doGet(url, params);
                 }
-//                存原始数据
-                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
-                mglCarshopTianfuDataBakService.save(new MglCarshopTianfuDataBak().setCarVin((String) params.get(Gloables.API_PARAM_CARID)).setJsonContent(content).setRealDate(yesterday).setCreateDate(today));
 //                存详情
                 FuTiamDetailDtoList fuTiamDetailDtoList = JSONObject.parseObject(content, FuTiamDetailDtoList.class);
                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
@@ -184,16 +189,12 @@ public class CatchFuTIanDataTask {
                 CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, newOs);
             } catch (Exception e) {
                 e.printStackTrace();
-                mglCarshopTianfuDataService.save(new MglCarshopTianfuData().setCarVin((String) params.get("carId")).setJsonContent("数据异常").setRealDate(yesterday).setCreateDate(today));
+                logger.info(car.getCarVin()+"生成csv失败");
                 continue;
             }
         }
 //        压缩
-        String[] extention = new String[]{Gloables.CSV_EXTENT};
-        List<File> files = FileUtil.listFile(new File(dir), extention, true);
-        if (cars.size() == files.size()) {
-            CompressUtils.zip(dir, dir + Gloables.ZIP_EXTENT);
-        }
+        CompressUtils.zip(dir, dir + Gloables.ZIP_EXTENT);
 //        FTP
         FtpTool tool = new FtpTool(host, port, username, password);
         tool.initFtpClient();
@@ -206,5 +207,6 @@ public class CatchFuTIanDataTask {
         }
         System.out.println(yesterday + "日=============》数据抓取完毕");
     }
+
 
 }
