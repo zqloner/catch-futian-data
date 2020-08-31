@@ -64,6 +64,7 @@ public class HttpClientUtil {
             httpGet.setProtocolVersion(HttpVersion.HTTP_1_0);
             logger.info("访问路径：" + uri);
             HttpResponse response = httpClient.execute(httpGet);
+            logger.info("成功访问路径");
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {// 返回200，请求成功
                 // 结果返回
                 result = EntityUtils.toString(response.getEntity());
