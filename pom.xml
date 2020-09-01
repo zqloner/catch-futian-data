@@ -180,12 +180,17 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+
     </build>
 
     <profiles>
         <!-- 开发环境 -->
         <profile>
             <id>dev</id>
+            <!-- 是否默认 true表示默认-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <env>dev</env>
             </properties>
