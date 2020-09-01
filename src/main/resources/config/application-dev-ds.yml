@@ -1,8 +1,4 @@
-#上传路径配置
-brightease:
-  goldenDragonCsvPath: d:/GoldenDragon/
-  ftpZipPath: D:/server110/csv-zip
-
+# 开发环境数据源配置
 #mysql
 spring:
   datasource:
@@ -20,18 +16,3 @@ spring:
           username: root
           password: 123456
           driver-class-name: com.mysql.cj.jdbc.Driver
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-
-#ftp
-ftp:
-  host: ftp.mgldl.com.cn
-  port: 21
-  username: mgl
-  password: MglAa110
-  defatultport: 21
-  serverpath: csvfile
-  req:
-    url: ftp.mgldl.com.cn

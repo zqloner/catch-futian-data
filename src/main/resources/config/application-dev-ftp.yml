@@ -1,0 +1,15 @@
+#上传路径配置
+brightease:
+  goldenDragonCsvPath: d:/GoldenDragon/
+  ftpZipPath: D:/server110/csv-zip
+
+#ftp
+ftp:
+  host: ftp.mgldl.com.cn
+  port: 21
+  username: mgl
+  password: MglAa110
+  defatultport: 21
+  serverpath: csvfile
+  req:
+    url: ftp.mgldl.com.cn

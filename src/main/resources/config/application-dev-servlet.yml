@@ -1,0 +1,10 @@
+#servlet配置
+server:
+  servlet:
+    context-path: /
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB

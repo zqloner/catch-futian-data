@@ -1,32 +1,43 @@
-spring:
-  profiles:
-    active: dev #默认为开发环境
-  mvc:
-    static-path-pattern: /static/**
-  resources:
-    static-locations: classpath:/static/
-
 server:
-  port: 8787
-  servlet:
-    context-path: /
+  port: 9527
 
-#日志生成目录
-logging:
-  level:
-    root: info #日志配置DEBUG,INFO,WARN,ERROR
-    com.mgl: info
-    org.springframework: WARN
-    org.spring.springboot.dao: info
-  config: classpath:logback-boot.xml
-#  file: demo_log.log #配置日志生成路径
-#  path: /var/logs #配置日志文件名称
+spring:
+  application:
+    name: futian-goldenDragon
+  profiles:
+    active: '@env@'
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
 
 #mybatis-plus
 mybatis-plus:
   mapper-locations: classpath:mapper/*/*.xml
   type-aliases-package: com.mgl.bean.*
-#  configuration:
-#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #  configuration:
+  #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
+
+
+
 
 

@@ -1,9 +1,4 @@
-#上传路径配置
-brightease:
-  goldenDragonCsvPath: /home/data/goldenDragonCsvPath/
-  ftpZipPath: /home/data/futian-csvPath/
-
-#mysql
+# 生产环境数据源配置
 spring:
   datasource:
     dynamic:
@@ -20,20 +15,3 @@ spring:
           username: root
           password: Mgl-Msql@1234
           driver-class-name: com.mysql.cj.jdbc.Driver
-
-  #上传文件大小的控制
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-
-#设置ftp
-ftp:
-  host: ftp.mgldl.com.cn
-  port: 21
-  username: mgl
-  password: MglAa110
-  defatultport: 21
-  serverpath: csvfile
-  req:
-    url: ftp.mgldl.com.cn

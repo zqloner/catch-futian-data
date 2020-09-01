@@ -1,0 +1,11 @@
+#servlet配置
+server:
+  servlet:
+    context-path: /
+
+#上传文件控制大小
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
