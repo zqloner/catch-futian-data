@@ -193,7 +193,7 @@ public class GoldenDragonQuartzJob {
         // 线程池处理
         MglThreadPoolExecutor poolExecutor = null;
         try {
-            poolExecutor = new MglThreadPoolExecutor(16,128,60,"金龙数据生成csv");
+            poolExecutor = new MglThreadPoolExecutor(16,32,60,"金龙数据生成csv");
             Set<Callable<Map>> callableSet = new HashSet<>();
             for (int i = 0; i < carVinList.size(); i++) {
                 int finalI = i;
