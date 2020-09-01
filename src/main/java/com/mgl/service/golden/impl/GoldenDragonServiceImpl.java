@@ -1,5 +1,6 @@
 package com.mgl.service.golden.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mgl.bean.golden.GoldenDragon;
 import com.mgl.dao.golden.GoldenDragonMapper;
@@ -19,6 +20,7 @@ import java.util.List;
  * @since 2020-07-03
  */
 @Service("goldenDragonServiceImpl")
+@DS("master")
 public class GoldenDragonServiceImpl extends ServiceImpl<GoldenDragonMapper, GoldenDragon> implements GoldenDragonService {
 
     @Resource
