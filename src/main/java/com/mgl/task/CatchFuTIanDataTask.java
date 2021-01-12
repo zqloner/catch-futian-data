@@ -75,9 +75,10 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    @Scheduled(cron = "0 10 20 23 * ? ")
     public void produceTopicNoDetail() throws Exception {
         List<LocalDate> localDates = new ArrayList<>();
+        localDates.add(LocalDate.now().plusDays(-1));
         localDates.add(LocalDate.now());
         for (int i = 0; i < localDates.size(); i++) {
             getFuTianData(localDates.get(i));

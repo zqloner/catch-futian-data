@@ -1,17 +1,25 @@
-spring:
-  profiles:
-    active: prod #默认为开发环境
-
 server:
-  port: 9999
+  port: 5454
   servlet:
     context-path: /
+spring:
+  application:
+    name: futian-goldenDragon
+  profiles:
+    active: 'prod'
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:/static/
 
 #日志生成目录
 logging:
   level:
     root: info #日志配置DEBUG,INFO,WARN,ERROR
-    com.brightease.bju: debug
+    com.mgl: info
     org.springframework: WARN
     org.spring.springboot.dao: info
   config: classpath:logback-boot.xml
@@ -22,6 +30,4 @@ logging:
 mybatis-plus:
   mapper-locations: classpath:mapper/*/*.xml
   type-aliases-package: com.mgl.bean.*
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
