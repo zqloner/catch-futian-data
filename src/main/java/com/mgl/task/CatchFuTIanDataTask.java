@@ -85,7 +85,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-//    @Scheduled(cron = "0 0 22 15-21 * ? ")
+////    @Scheduled(cron = "0 0 22 15-21 * ? ")
     public void produceTopicNoDetail() throws Exception {
         dayNum = dayNum + 2;
         List<LocalDate> localDates = new ArrayList<>();
