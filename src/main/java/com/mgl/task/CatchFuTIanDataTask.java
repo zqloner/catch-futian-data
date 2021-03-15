@@ -56,6 +56,8 @@ public class CatchFuTIanDataTask {
 
     private static final Logger logger = LoggerFactory.getLogger(CatchFuTIanDataTask.class);
 
+    private  int dayNum = -2;
+
     @Resource
     private CarNumberDictService carNumberDictService;
 
@@ -83,10 +85,14 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+//    @Scheduled(cron = "0 0 22 15-21 * ? ")
     public void produceTopicNoDetail() throws Exception {
+        dayNum = dayNum + 2;
         List<LocalDate> localDates = new ArrayList<>();
-        localDates.add(LocalDate.now());
+        LocalDate now = LocalDate.of(2021, 3, 2+dayNum);
+        LocalDate yesterday = now.plusDays(1);
+        localDates.add(now);
+        localDates.add(yesterday);
         for (LocalDate localDate : localDates) {
             try {
                 getFuTianData(localDate);
@@ -98,13 +104,9 @@ public class CatchFuTIanDataTask {
 
     private void getFuTianData(LocalDate today) throws IOException {
         LocalDate yesterday = today.plusDays(-1);
-        String url = Gloables.API_URL;
         List<CarNumberDict> cars = carNumberDictService.list(new QueryWrapper<>(new CarNumberDict().setDelFlag(0)));
-        Map<String, String> params = new HashMap();
-        params.put(Gloables.API_PARAM_TOKEN, Gloables.API_TOKEN);
-        params.put(Gloables.API_PARAM_DATE, yesterday.toString());
 //        强制创建目录
-        String dir = ftpZipPath + "/" + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String dir = ftpZipPath + yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         File file = new File(dir);
         if (!file.exists()) {
             FileUtil.forceDirectory(dir);
@@ -120,14 +122,13 @@ public class CatchFuTIanDataTask {
                     public void run() {
                         for (CarNumberDict car : list) {
                             try {
-                                params.put(Gloables.API_PARAM_CARID, car.getCarVin());
                                 String path = Gloables.API_URL + "?" + Gloables.API_PARAM_TOKEN + "=" + Gloables.API_TOKEN + "&" + Gloables.API_PARAM_DATE + "=" + yesterday.toString()
                                         + "&" + Gloables.API_PARAM_CARID + "=" + car.getCarVin();
                                 logger.info("访问路径:"+path);
                                 FuTiamDetailDtoList fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
                                 logger.info("成功访问路径:"+path);
                                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                                String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + params.get(Gloables.API_PARAM_CARID) + Gloables.CSV_EXTENT;
+                                String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + car.getCarVin() + Gloables.CSV_EXTENT;
                                 List<Map<String, Object>> datas = new ArrayList<>();
                                 FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH + fileName);
                                 data.forEach(x -> {
@@ -136,7 +137,7 @@ public class CatchFuTIanDataTask {
                                     //                    导出到csv
                                     Map<String, Object> map = new HashMap<>();
                                     //                    创建数据
-                                    map.put("vin", (String) params.get(Gloables.API_PARAM_CARID));
+                                    map.put("vin", car.getCarVin());
                                     map.put("car_current_time", x.getTime());
                                     if (!StringUtils.isBlank(codes.get("1030002"))) {
                                         try {
