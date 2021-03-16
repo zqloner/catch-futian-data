@@ -56,7 +56,7 @@ public class CatchFuTIanDataTask {
 
     private static final Logger logger = LoggerFactory.getLogger(CatchFuTIanDataTask.class);
 
-    private  int dayNum = -2;
+    private int dayNum = -2;
 
     @Resource
     private CarNumberDictService carNumberDictService;
@@ -85,14 +85,10 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-////    @Scheduled(cron = "0 0 22 15-21 * ? ")
+    @Scheduled(cron = "0 15 9 * * ? ")
     public void produceTopicNoDetail() throws Exception {
-        dayNum = dayNum + 2;
         List<LocalDate> localDates = new ArrayList<>();
-        LocalDate now = LocalDate.of(2021, 3, 2+dayNum);
-        LocalDate yesterday = now.plusDays(1);
-        localDates.add(now);
-        localDates.add(yesterday);
+        localDates.add(LocalDate.now());
         for (LocalDate localDate : localDates) {
             try {
                 getFuTianData(localDate);
@@ -111,121 +107,98 @@ public class CatchFuTIanDataTask {
         if (!file.exists()) {
             FileUtil.forceDirectory(dir);
         }
-
-        List<List<CarNumberDict>> lists = GroupUtil.groupListByQuantity(cars, 600);
-        CountDownLatch countDownLatch = new CountDownLatch(lists.size());
-        ExecutorService fixedThread = Executors.newFixedThreadPool(lists.size());
-        try {
-            for (List<CarNumberDict> list : lists) {
-                fixedThread.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (CarNumberDict car : list) {
-                            try {
-                                String path = Gloables.API_URL + "?" + Gloables.API_PARAM_TOKEN + "=" + Gloables.API_TOKEN + "&" + Gloables.API_PARAM_DATE + "=" + yesterday.toString()
-                                        + "&" + Gloables.API_PARAM_CARID + "=" + car.getCarVin();
-                                logger.info("访问路径:"+path);
-                                FuTiamDetailDtoList fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
-                                logger.info("成功访问路径:"+path);
-                                List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
-                                String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + car.getCarVin() + Gloables.CSV_EXTENT;
-                                List<Map<String, Object>> datas = new ArrayList<>();
-                                FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH + fileName);
-                                data.forEach(x -> {
-                                    //                    每条数据的代码
-                                    Map<String, String> codes = x.getCodes();
-                                    //                    导出到csv
-                                    Map<String, Object> map = new HashMap<>();
-                                    //                    创建数据
-                                    map.put("vin", car.getCarVin());
-                                    map.put("car_current_time", x.getTime());
-                                    if (!StringUtils.isBlank(codes.get("1030002"))) {
-                                        try {
-                                            map.put("mileages", (Double.parseDouble(codes.get("1030002")) / 1000) + "");
-                                        } catch (NumberFormatException e) {
-                                            map.put("mileages", codes.get("1030002"));
-                                        }
-                                    }
-                                    map.put("speed", codes.get("1010027"));
-                                    //                    SOC
-                                    map.put("soc", codes.get("1110045"));
-                                    //                    总电流总电压最高温度最低温度
-                                    map.put("total_current", codes.get("1110044"));
-                                    map.put("total_voltage", codes.get("1110043"));
-                                    map.put("max_temperature", codes.get("1110050"));
-                                    map.put("min_temperature", codes.get("1110049"));
-                                    //                    最高最低电压以及编号
-                                    map.put("max_voltage", codes.get("1110048"));
-                                    map.put("min_voltage", codes.get("1110047"));
-                                    map.put("min_voltage_cell_code", codes.get("1110070"));
-                                    map.put("max_voltage_cell_code", codes.get("1110068"));
-                                    map.put("max_temperature_needle", codes.get("1110074"));
-                                    map.put("min_temperature_needle", codes.get("1110072"));
-                                    //                    获取codes键
-                                    List<String> collect = codes.keySet().stream().filter(y -> y.contains("1110107-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
-                                    List<String> collect1 = codes.keySet().stream().filter(y -> y.contains("1110108-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
-                                    List<Double> list3 = new ArrayList<>();
-                                    List<Double> list4 = new ArrayList<>();
-                                    for (int i = 0; i < collect.size(); i++) {
-                                        try {
-                                            list3.add(Double.valueOf(codes.get(collect.get(i))));
-                                        } catch (NumberFormatException e) {
-                                            list3.add(-99999d);
-                                        }
-                                    }
-                                    //                    单体电压
-                                    map.put("single_voltage", StringUtils.join(list3, "|"));
-                                    //                    绝缘电阻
-                                    map.put("insulation_resistance", codes.get("1110085"));
-                                    //                    单体温度
-                                    for (int i = 0; i < collect1.size(); i++) {
-                                        try {
-                                            list4.add(Double.valueOf(codes.get(collect1.get(i))));
-                                        } catch (NumberFormatException e) {
-                                            list4.add(-99999d);
-                                        }
-                                    }
-                                    map.put("singel_temperature", StringUtils.join(list4, "|"));
-                                    map.put("soc_low_alarm", codes.get("1110065"));
-                                    map.put("battery_high_temperature_alarm", codes.get("1110064"));
-                                    map.put("temperature_difference_alarm", codes.get("1110061"));
-                                    map.put("equip_overvoltage_alarm", codes.get("1110054"));
-                                    map.put("equipment_undervoltage_alarm", codes.get("1110053"));
-                                    map.put("system_mismatch_alarm", codes.get("1110052"));
-                                    map.put("maximum_alarm_level", codes.get("1110046"));
-                                    map.put("type_overcharge_alarm", codes.get("1140017"));
-                                    map.put("soc_jump_alarm", codes.get("1140019"));
-                                    map.put("insulation_alarm", codes.get("1110087"));
-                                    map.put("dc_status_alarm", codes.get("1130237"));
-                                    map.put("high_pressure_interlock_alarm", codes.get("1110157"));
-                                    map.put("poor_battery_consistency_alarm", codes.get("1110132"));
-                                    map.put("single_battery_overvoltage_alarm", codes.get("1130180"));
-                                    map.put("low_voltage_alarm_for_single_battery", codes.get("1130181"));
-                                    map.put("soc_high_alarm", codes.get("1130183"));
-                                    //                    这是导出csv
-                                    datas.add(map);
-                                });
-                                //                导出到csv
-                                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, newOs);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                logger.info(car.getCarVin()+"生成csv失败");
-                                continue;
-                            }
-                        }
-                        countDownLatch.countDown();
-                    }
-                });
-            }
+        for (CarNumberDict car : cars) {
             try {
-                countDownLatch.await();  //等待各个线程的执行完成
-            } catch (InterruptedException e) {
+                String path = Gloables.API_URL + "?" + Gloables.API_PARAM_TOKEN + "=" + Gloables.API_TOKEN + "&" + Gloables.API_PARAM_DATE + "=" + yesterday.toString()
+                        + "&" + Gloables.API_PARAM_CARID + "=" + car.getCarVin();
+                logger.info("访问路径:" + path);
+                FuTiamDetailDtoList fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
+                logger.info("成功访问路径:" + path);
+                List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
+                String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + car.getCarVin() + Gloables.CSV_EXTENT;
+                List<Map<String, Object>> datas = new ArrayList<>();
+                FileOutputStream newOs = new FileOutputStream(dir + Gloables.SPECIAL_SLASH + fileName);
+                data.forEach(x -> {
+                    //                    每条数据的代码
+                    Map<String, String> codes = x.getCodes();
+                    //                    导出到csv
+                    Map<String, Object> map = new HashMap<>();
+                    //                    创建数据
+                    map.put("vin", car.getCarVin());
+                    map.put("car_current_time", x.getTime());
+                    if (!StringUtils.isBlank(codes.get("1030002"))) {
+                        try {
+                            map.put("mileages", (Double.parseDouble(codes.get("1030002")) / 1000) + "");
+                        } catch (NumberFormatException e) {
+                            map.put("mileages", codes.get("1030002"));
+                        }
+                    }
+                    map.put("speed", codes.get("1010027"));
+                    //                    SOC
+                    map.put("soc", codes.get("1110045"));
+                    //                    总电流总电压最高温度最低温度
+                    map.put("total_current", codes.get("1110044"));
+                    map.put("total_voltage", codes.get("1110043"));
+                    map.put("max_temperature", codes.get("1110050"));
+                    map.put("min_temperature", codes.get("1110049"));
+                    //                    最高最低电压以及编号
+                    map.put("max_voltage", codes.get("1110048"));
+                    map.put("min_voltage", codes.get("1110047"));
+                    map.put("min_voltage_cell_code", codes.get("1110070"));
+                    map.put("max_voltage_cell_code", codes.get("1110068"));
+                    map.put("max_temperature_needle", codes.get("1110074"));
+                    map.put("min_temperature_needle", codes.get("1110072"));
+                    //                    获取codes键
+                    List<String> collect = codes.keySet().stream().filter(y -> y.contains("1110107-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
+                    List<String> collect1 = codes.keySet().stream().filter(y -> y.contains("1110108-1")).sorted((a, b) -> Integer.parseInt(a.substring(10)) - Integer.parseInt(b.substring(10))).collect(Collectors.toList());
+                    List<Double> list3 = new ArrayList<>();
+                    List<Double> list4 = new ArrayList<>();
+                    for (int i = 0; i < collect.size(); i++) {
+                        try {
+                            list3.add(Double.valueOf(codes.get(collect.get(i))));
+                        } catch (NumberFormatException e) {
+                            list3.add(-99999d);
+                        }
+                    }
+                    //                    单体电压
+                    map.put("single_voltage", StringUtils.join(list3, "|"));
+                    //                    绝缘电阻
+                    map.put("insulation_resistance", codes.get("1110085"));
+                    //                    单体温度
+                    for (int i = 0; i < collect1.size(); i++) {
+                        try {
+                            list4.add(Double.valueOf(codes.get(collect1.get(i))));
+                        } catch (NumberFormatException e) {
+                            list4.add(-99999d);
+                        }
+                    }
+                    map.put("singel_temperature", StringUtils.join(list4, "|"));
+                    map.put("soc_low_alarm", codes.get("1110065"));
+                    map.put("battery_high_temperature_alarm", codes.get("1110064"));
+                    map.put("temperature_difference_alarm", codes.get("1110061"));
+                    map.put("equip_overvoltage_alarm", codes.get("1110054"));
+                    map.put("equipment_undervoltage_alarm", codes.get("1110053"));
+                    map.put("system_mismatch_alarm", codes.get("1110052"));
+                    map.put("maximum_alarm_level", codes.get("1110046"));
+                    map.put("type_overcharge_alarm", codes.get("1140017"));
+                    map.put("soc_jump_alarm", codes.get("1140019"));
+                    map.put("insulation_alarm", codes.get("1110087"));
+                    map.put("dc_status_alarm", codes.get("1130237"));
+                    map.put("high_pressure_interlock_alarm", codes.get("1110157"));
+                    map.put("poor_battery_consistency_alarm", codes.get("1110132"));
+                    map.put("single_battery_overvoltage_alarm", codes.get("1130180"));
+                    map.put("low_voltage_alarm_for_single_battery", codes.get("1130181"));
+                    map.put("soc_high_alarm", codes.get("1130183"));
+                    //                    这是导出csv
+                    datas.add(map);
+                });
+                //                导出到csv
+                CsvExportUtil.doExport(datas, Gloables.CSV_TITLES, Gloables.CSV_KEYS, newOs);
+            } catch (Exception e) {
                 e.printStackTrace();
+                logger.info(car.getCarVin() + "生成csv失败");
+                continue;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            fixedThread.shutdown(); //关闭线程池
         }
 //        压缩
         CompressUtils.zip(dir, dir + Gloables.ZIP_EXTENT);
