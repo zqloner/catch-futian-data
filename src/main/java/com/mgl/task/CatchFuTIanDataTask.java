@@ -83,11 +83,13 @@ public class CatchFuTIanDataTask {
      *  //只到24号。少抓了14号当天的数据
      * @throws Exception
      */
-    @Scheduled(cron = "0 1 0 * * ? ")
+    @Scheduled(cron = "0 40 19 20 * ? ")
     public void produceTopicNoDetail() throws Exception {
-        System.out.println("aaa");
         List<LocalDate> localDates = new ArrayList<>();
-        localDates.add(LocalDate.now());
+        LocalDate fifteen = LocalDate.of(2021, 3, 19);
+        LocalDate fourteen = LocalDate.of(2021, 3, 15);
+        localDates.add(fifteen);
+        localDates.add(fourteen);
         for (LocalDate localDate : localDates) {
             try {
                 getFuTianData(localDate);
