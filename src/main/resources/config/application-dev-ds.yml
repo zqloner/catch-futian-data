@@ -1,5 +1,4 @@
-# 开发环境数据源配置
-#mysql
+# 生产环境数据源配置
 spring:
   datasource:
     dynamic:
@@ -7,12 +6,12 @@ spring:
       strict: false #设置严格模式,默认false不启动. 启动后在未匹配到指定数据源时候会抛出异常,不启动则使用默认数据源.
       datasource:
         master:
+          url: jdbc:mysql://192.168.0.111:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+          username: zhangqi
+          password: Zhangqi@1234
+          driver-class-name: com.mysql.cj.jdbc.Driver # 3.2.0开始支持SPI可省略此配置
+        slave_1:
           url: jdbc:mysql://192.168.0.110:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
           username: root
           password: Mgl-Msql@1234
-          driver-class-name: com.mysql.cj.jdbc.Driver # 3.2.0开始支持SPI可省略此配置
-        slave_1:
-          url: jdbc:mysql://127.0.0.1:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-          username: root
-          password: 123456
           driver-class-name: com.mysql.cj.jdbc.Driver

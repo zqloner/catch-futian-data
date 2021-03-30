@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -75,13 +76,11 @@ public class CatchFuTIanDataTask {
      *  //只到24号。少抓了14号当天的数据
      * @throws Exception
      */
-    @Scheduled(cron = "0 40 19 20 * ? ")
+    @Scheduled(cron = "0 0 20 30 * ? ")
     public void produceTopicNoDetail() throws Exception {
         List<LocalDate> localDates = new ArrayList<>();
-        LocalDate fifteen = LocalDate.of(2021, 3, 19);
-        LocalDate fourteen = LocalDate.of(2021, 3, 15);
-        localDates.add(fifteen);
-        localDates.add(fourteen);
+        localDates.add(LocalDate.now());
+        localDates.add(LocalDate.now().plusDays(-1));
         for (LocalDate localDate : localDates) {
             try {
                 getFuTianData(localDate);
@@ -114,7 +113,16 @@ public class CatchFuTIanDataTask {
                                 String path = Gloables.API_URL + "?" + Gloables.API_PARAM_TOKEN + "=" + Gloables.API_TOKEN + "&" + Gloables.API_PARAM_DATE + "=" + yesterday.toString()
                                         + "&" + Gloables.API_PARAM_CARID + "=" + car.getCarVin();
                                 logger.info("访问路径:"+path);
-                                FuTiamDetailDtoList fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
+                                FuTiamDetailDtoList fuTiamDetailDtoList = null;
+
+                                do {
+                                    try {
+                                        fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
+                                    } catch (RestClientException e) {
+                                        fuTiamDetailDtoList.setCode(0);
+                                    }
+                                } while (fuTiamDetailDtoList.getCode()!=1);
+
                                 logger.info("成功访问路径:"+path);
                                 List<FuTianDetailDto> data = fuTiamDetailDtoList.getData();
                                 String fileName = Gloables.SORT_INIT_NUMBER + car.getId() + Gloables.SPECIAL_SHORT_LINE + car.getCarVin() + Gloables.CSV_EXTENT;

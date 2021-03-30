@@ -1,7 +1,7 @@
 #上传路径配置
 brightease:
   goldenDragonCsvPath: d:/GoldenDragon/
-  ftpZipPath: D:/server110/csv-zip
+  ftpZipPath: D:/server110/csv-zip/
 
 #ftp
 ftp:
