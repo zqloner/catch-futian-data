@@ -76,11 +76,10 @@ public class CatchFuTIanDataTask {
      *  //只到24号。少抓了14号当天的数据
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 20 30 * ? ")
+    @Scheduled(cron = "0 1 0 * * ? ")
     public void produceTopicNoDetail() throws Exception {
         List<LocalDate> localDates = new ArrayList<>();
         localDates.add(LocalDate.now());
-        localDates.add(LocalDate.now().plusDays(-1));
         for (LocalDate localDate : localDates) {
             try {
                 getFuTianData(localDate);
@@ -112,13 +111,15 @@ public class CatchFuTIanDataTask {
                             try {
                                 String path = Gloables.API_URL + "?" + Gloables.API_PARAM_TOKEN + "=" + Gloables.API_TOKEN + "&" + Gloables.API_PARAM_DATE + "=" + yesterday.toString()
                                         + "&" + Gloables.API_PARAM_CARID + "=" + car.getCarVin();
-                                logger.info("访问路径:"+path);
                                 FuTiamDetailDtoList fuTiamDetailDtoList = null;
 
                                 do {
                                     try {
+                                        logger.info("访问路径:"+path);
                                         fuTiamDetailDtoList = restTemplate.getForObject(path, FuTiamDetailDtoList.class);
                                     } catch (RestClientException e) {
+                                        logger.info("出现异常啦,持续获取数据中,访问路径:"+path);
+                                        fuTiamDetailDtoList = new FuTiamDetailDtoList();
                                         fuTiamDetailDtoList.setCode(0);
                                     }
                                 } while (fuTiamDetailDtoList.getCode()!=1);
