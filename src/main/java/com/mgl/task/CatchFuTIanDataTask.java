@@ -75,7 +75,7 @@ public class CatchFuTIanDataTask {
      *
      * @throws Exception
      */
-    @Scheduled(cron = "0 0 0 * * ? ")
+    //@Scheduled(cron = "0 0 0 * * ? ")
     public void produceTopicNoDetail() throws Exception {
         List<LocalDate> localDates = new ArrayList<>();
         localDates.add(LocalDate.now());

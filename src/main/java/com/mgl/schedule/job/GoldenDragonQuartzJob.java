@@ -269,8 +269,8 @@ public class GoldenDragonQuartzJob {
             String carNum = StringUtils.join(carVin,",");
             String requestUrl = Gloables.GOLD_DATA_BASE_URL + carNum + Gloables.GOLD_PARAMS_TYPES + token;
             JSONObject resultData = restTemplate.getForObject(requestUrl,JSONObject.class);
-            log.info("[resultData]:{}",resultData);
             dto = JSONObject.toJavaObject(resultData, GoldenDragonDto.class);
+            log.info("[resultData]:从对方服务器获取数据：{}条",dto.getData().size());
         } catch (RestClientException e) {
             log.error("请求金龙实时数据出错！",e);
         }
@@ -427,6 +427,7 @@ public class GoldenDragonQuartzJob {
             }
 
         });
+        log.info("厦门金龙数据入库：{}条", goldenDragons.size());
         return goldenDragons;
     }
 }
