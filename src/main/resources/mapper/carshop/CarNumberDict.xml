@@ -25,11 +25,12 @@
         <result column="galvanic_cell_number" property="galvanicCellNumber" />
         <result column="note" property="note" />
         <result column="del_flag" property="delFlag" />
+        <result column="group_lable" property="groupLable" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, car_vin, car_number, province, city, county_info, vehicle_customer, battery_number, order_number, battery_type, single_capacity, now_bcu_software_version, original_bcu_software_version, bus_route, bus_company, vehicle_service_time, mixed_model, main_turning_number, galvanic_cell_number, note,del_flag
+        id, car_vin, car_number, province, city, group_lable,county_info, vehicle_customer, battery_number, order_number, battery_type, single_capacity, now_bcu_software_version, original_bcu_software_version, bus_route, bus_company, vehicle_service_time, mixed_model, main_turning_number, galvanic_cell_number, note,del_flag
     </sql>
 
     <select id="findByVinName" resultType="com.mgl.bean.carshop.CarNumberDict">

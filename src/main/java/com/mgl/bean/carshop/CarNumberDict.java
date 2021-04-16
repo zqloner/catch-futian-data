@@ -146,5 +146,10 @@ public class CarNumberDict implements Serializable {
      */
     private Integer delFlag;
 
+    /**
+     * 删除标识符
+     */
+    private Integer groupLable;
+
 
 }

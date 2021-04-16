@@ -46,6 +46,7 @@ public class HttpClientUtil {
 
         HttpGet httpGet = null;
         URI uri = null;
+        HttpResponse response = null;
         try {
             // 拼接参数,可以用URIBuilder,也可以直接拼接在？传值，拼在url后面，如下--httpGet = new
             // HttpGet(uri+"?id=123");
@@ -63,11 +64,12 @@ public class HttpClientUtil {
             httpGet = new HttpGet(uri);
             httpGet.setProtocolVersion(HttpVersion.HTTP_1_0);
             logger.info("访问路径：" + uri);
-            HttpResponse response = httpClient.execute(httpGet);
+            response = httpClient.execute(httpGet);
             logger.info("成功访问路径");
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {// 返回200，请求成功
                 // 结果返回
                 result = EntityUtils.toString(response.getEntity());
+                response.getEntity().getContent().close();
                 logger.info("请求成功!");
 //                logger.info("请求成功！，返回数据：" + result);
             } else {
@@ -76,12 +78,22 @@ public class HttpClientUtil {
         } catch (Exception e) {
             e.printStackTrace();
             logger.info("请求失败!",e.getMessage());
+            try {
+                response.getEntity().getContent().close(); //关闭资源
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
             return uri.toString();
 //            logger.error(ExceptionUtils.getStackTrace(e));
         } finally {
             // 释放连接
             if (null != httpGet) {
-                httpGet.releaseConnection();
+                logger.info("释放连接!");
+                try {
+                    response.getEntity().getContent().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return result;
