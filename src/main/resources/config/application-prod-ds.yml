@@ -11,7 +11,7 @@ spring:
           password: Zhangqi@1234
           driver-class-name: com.mysql.cj.jdbc.Driver # 3.2.0开始支持SPI可省略此配置
         slave_1:
-          url: jdbc:mysql://192.168.0.110:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-          username: root
-          password: Mgl-Msql@1234
+          url: jdbc:mysql://192.168.0.111:3306/onelink?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+          username: zhangqi
+          password: Zhangqi@1234
           driver-class-name: com.mysql.cj.jdbc.Driver

@@ -12,6 +12,7 @@
     <artifactId>catch-futian-data</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>catch-futian-data</name>
+   <packaging>war</packaging>
     <description>Demo project for Spring Boot</description>
 
     <properties>
@@ -25,12 +26,26 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
+              <!--去除内置日志-->
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
+              <!--去除内置tomcat打war包部署-->
+              <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
+      <!--去除内置tomcat后表示由容器提供servlet,不去除内置tomcat使用jar包部署的话需要将这个依赖去掉-->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+        <scope>provided</scope>
+      </dependency>
+
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -174,13 +189,21 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <configuration>
+            <includeSystemScope>true</includeSystemScope>
+          </configuration>
+        </plugin>
 
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+      </plugins>
+      <finalName>catch-futian-data</finalName>
     </build>
 
     <profiles>

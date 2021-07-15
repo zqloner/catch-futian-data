@@ -1,7 +1,7 @@
 #上传路径配置
 brightease:
-  goldenDragonCsvPath: /home/data/goldenDragonCsvPath/
-  ftpZipPath: /home/data/futian-csvPath/
+  goldenDragonCsvPath: D:\\home\\data\\goldenDragonCsvPath\\
+  ftpZipPath: D:\\home\\data\\futian-csvPath\\
 
 #设置ftp
 ftp:
