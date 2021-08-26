@@ -76,7 +76,7 @@ public class CatchFuTIanDataTask {
      *  //只到24号。少抓了14号当天的数据
      * @throws Exception
      */
-    @Scheduled(cron = "0 1 0 * * ? ")
+//    @Scheduled(cron = "0 1 0 * * ? ")
     public void produceTopicNoDetail() throws Exception {
         List<LocalDate> localDates = new ArrayList<>();
         localDates.add(LocalDate.now());
