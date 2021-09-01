@@ -1,6 +1,4 @@
-package com.mgl.sdk.utils;
-
-import com.mgl.utils.selfutil.MySelfUtil;
+package com.mgl.utils.sdk.utils;
 
 import java.text.DecimalFormat;
 

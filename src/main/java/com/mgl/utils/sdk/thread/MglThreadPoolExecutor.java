@@ -1,4 +1,4 @@
-package com.mgl.sdk.thread;
+package com.mgl.utils.sdk.thread;
 
 import org.apache.commons.lang3.StringUtils;
 

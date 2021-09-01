@@ -1,9 +1,9 @@
-package com.mgl.sdk.advice;
+package com.mgl.utils.sdk.advice;
 
-import com.mgl.sdk.dto.ResultDTO;
-import com.mgl.sdk.exception.custom.MglRuntimeException;
-import com.mgl.sdk.utils.ExceptionUtils;
-import com.mgl.sdk.utils.StreamUtils;
+import com.mgl.utils.sdk.dto.ResultDTO;
+import com.mgl.utils.sdk.exception.custom.MglRuntimeException;
+import com.mgl.utils.sdk.utils.ExceptionUtils;
+import com.mgl.utils.sdk.utils.StreamUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

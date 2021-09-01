@@ -3,7 +3,7 @@ package com.mgl.controller.golden;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.mgl.bean.golden.GoldenDragon;
-import com.mgl.common.Gloables;
+import com.mgl.utils.constants.Gloables;
 import com.mgl.service.golden.CarGoldenDragonNumberDictService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.utils.compress.CompressUtils;

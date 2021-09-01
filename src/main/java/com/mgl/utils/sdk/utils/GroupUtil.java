@@ -1,4 +1,4 @@
-package com.mgl.sdk.utils;
+package com.mgl.utils.sdk.utils;
 
 import java.util.ArrayList;
 import java.util.List;

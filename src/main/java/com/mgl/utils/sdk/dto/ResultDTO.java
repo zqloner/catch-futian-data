@@ -1,7 +1,7 @@
-package com.mgl.sdk.dto;
+package com.mgl.utils.sdk.dto;
 
 
-import com.mgl.sdk.utils.NumberUtils;
+import com.mgl.utils.sdk.utils.NumberUtils;
 
 import java.io.Serializable;
 import java.util.Collection;

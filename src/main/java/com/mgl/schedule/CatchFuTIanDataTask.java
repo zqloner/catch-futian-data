@@ -1,11 +1,11 @@
-package com.mgl.task;
+package com.mgl.schedule;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.carshop.CarNumberDict;
 import com.mgl.bean.dto.FuTiamDetailDtoList;
 import com.mgl.bean.dto.FuTianDetailDto;
-import com.mgl.common.Gloables;
-import com.mgl.sdk.http.MglRestTemplate;
+import com.mgl.utils.constants.Gloables;
+import com.mgl.utils.sdk.http.MglRestTemplate;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.utils.compress.CompressUtils;
 import com.mgl.utils.csv.CsvExportUtil;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 

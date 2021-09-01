@@ -1,33 +1,31 @@
-package com.mgl.sdk.thread;
+package com.mgl.utils.sdk.thread;
 
 import org.slf4j.MDC;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.concurrent.Callable;
-
 /**
  * @description:
  **/
-public class MglCallable<T> implements Callable<T> {
-    private Callable<T> task;
+public class MglRunnable implements Runnable {
+    private Runnable task;
     private RequestAttributes context;
     private String logId;
 
-    public MglCallable(Callable<T> task, RequestAttributes context, String logId) {
+    public MglRunnable(Runnable task, RequestAttributes context, String logId) {
         this.task = task;
         this.context = context;
         this.logId = logId;
     }
 
     @Override
-    public T call() throws Exception {
+    public void run() {
         if (context != null) {
             RequestContextHolder.setRequestAttributes(context);
         }
         MDC.put("logId", logId);
         try {
-            return task.call();
+            task.run();
         } finally {
             RequestContextHolder.resetRequestAttributes();
             MDC.clear();

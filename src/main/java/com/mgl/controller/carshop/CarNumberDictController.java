@@ -2,8 +2,7 @@ package com.mgl.controller.carshop;
 
 
 import com.mgl.bean.carshop.CarNumberDict;
-import com.mgl.bean.carshop.MglCarshopFutianDataDetail;
-import com.mgl.common.Gloables;
+import com.mgl.utils.constants.Gloables;
 import com.mgl.service.carshop.CarNumberDictService;
 import com.mgl.utils.common.CommonResult;
 import com.mgl.utils.excel.ExcelUtils;

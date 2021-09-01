@@ -1,16 +1,16 @@
-package com.mgl.schedule.job;
+package com.mgl.schedule;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.mgl.bean.dto.GoldenDragonDto;
 import com.mgl.bean.golden.CarGoldenDragonNumberDict;
 import com.mgl.bean.golden.GoldenDragon;
-import com.mgl.common.Gloables;
-import com.mgl.sdk.exception.custom.MglRuntimeException;
-import com.mgl.sdk.http.MglRestTemplate;
-import com.mgl.sdk.thread.MglThreadPoolExecutor;
-import com.mgl.sdk.utils.GroupUtil;
-import com.mgl.sdk.utils.NumberFormatUtil;
+import com.mgl.utils.constants.Gloables;
+import com.mgl.utils.sdk.exception.custom.MglRuntimeException;
+import com.mgl.utils.sdk.http.MglRestTemplate;
+import com.mgl.utils.sdk.thread.MglThreadPoolExecutor;
+import com.mgl.utils.sdk.utils.GroupUtil;
+import com.mgl.utils.sdk.utils.NumberFormatUtil;
 import com.mgl.service.golden.CarGoldenDragonNumberDictService;
 import com.mgl.service.golden.GoldenDragonService;
 import com.mgl.utils.compress.CompressUtils;

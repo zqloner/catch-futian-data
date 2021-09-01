@@ -1,9 +1,8 @@
 package com.mgl.controller.golden;
 
 
-import com.mgl.bean.carshop.CarNumberDict;
 import com.mgl.bean.golden.CarGoldenDragonNumberDict;
-import com.mgl.common.Gloables;
+import com.mgl.utils.constants.Gloables;
 import com.mgl.service.golden.CarGoldenDragonNumberDictService;
 import com.mgl.utils.common.CommonResult;
 import com.mgl.utils.excel.ExcelUtils;

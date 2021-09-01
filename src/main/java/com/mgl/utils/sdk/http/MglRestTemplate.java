@@ -1,4 +1,4 @@
-package com.mgl.sdk.http;
+package com.mgl.utils.sdk.http;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

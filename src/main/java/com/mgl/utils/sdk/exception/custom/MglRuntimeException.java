@@ -1,4 +1,4 @@
-package com.mgl.sdk.exception.custom;
+package com.mgl.utils.sdk.exception.custom;
 
 /**
  * @Description 自定义运行异常

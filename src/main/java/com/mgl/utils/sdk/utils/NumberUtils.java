@@ -1,4 +1,4 @@
-package com.mgl.sdk.utils;
+package com.mgl.utils.sdk.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

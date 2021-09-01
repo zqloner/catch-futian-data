@@ -1,4 +1,4 @@
-package com.mgl.common;
+package com.mgl.utils.constants;
 
 /**
  * @Description:

@@ -1,6 +1,6 @@
-package com.mgl.sdk.utils;
+package com.mgl.utils.sdk.utils;
 
-import com.mgl.sdk.exception.custom.MglRuntimeException;
+import com.mgl.utils.sdk.exception.custom.MglRuntimeException;
 
 /**
  * @description:

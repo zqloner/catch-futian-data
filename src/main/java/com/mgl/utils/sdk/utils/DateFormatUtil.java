@@ -1,4 +1,4 @@
-package com.mgl.sdk.utils;
+package com.mgl.utils.sdk.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
